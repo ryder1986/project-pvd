@@ -144,7 +144,7 @@ public:
         }
         pkt.set_array("rects",ja);
         alg_rst=pkt.data().data();
-        printf("send [[[ %s\n  ]]]",alg_rst.data());
+      //  printf("send [[[ %s\n  ]]]",alg_rst.data());
         return ret;
     }
 
