@@ -123,8 +123,8 @@ public:
           vector <JsonValue> rs=pkt.get_array("rects");
           foreach (JsonValue v, rs) {
               DataPacket p(v);
-              int w= p.get_int("width");
-              int h= p.get_int("height");
+              int w= p.get_int("w");
+              int h= p.get_int("h");
               int x= p.get_int("x");
               int y= p.get_int("y");
               rst.rects.push_back(Rect(x,y,w,h));
