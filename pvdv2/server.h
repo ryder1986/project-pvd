@@ -130,6 +130,11 @@ public:
 public slots:
     int handle_client_request(string request,string &ret,void *addr);
     void new_connection();
+    void start()
+    {
+        service.start();
+    }
+
     void delete_client(ClientSession *c)
     {
         delete c ;

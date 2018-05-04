@@ -166,14 +166,14 @@ public:
     }
 
 
-void set_config()
-{
+    void set_config()
+    {
 
-    arg.scale_ratio= 0.8;
-    arg.scan_step=2;
-   // QJsonValue area=pkt.get_value("detect_area");
-    arg.area=area_2_rect();
-}
+        arg.scale_ratio= 0.8;
+        arg.scan_step=2;
+        // QJsonValue area=pkt.get_value("detect_area");
+        arg.area=area_2_rect();
+    }
 
     void set_config(JsonValue jv)
     {
@@ -236,7 +236,7 @@ void set_config()
 private:
     Rect area_2_rect()
     {
-  return Rect(0,0,640,480);
+        return Rect(0,0,640,480);
     }
     Rect area_2_rect(vector<JsonValue> area)
     {
@@ -248,8 +248,8 @@ private:
             DataPacket pkt(v);
             int x=pkt.get_int("x");
             int y=pkt.get_int("y");
-//              int x= v.toObject()["x"].toInt();
-//            int y= v.toObject()["y"].toInt();
+            //              int x= v.toObject()["x"].toInt();
+            //            int y= v.toObject()["y"].toInt();
             if(x<x_min)
                 x_min=x;
             if(x>x_max)
@@ -375,14 +375,16 @@ private:
 #if 1
 
         upper_bounds.push_back(100);	//100
-        filenames.push_back("combined.txt.model");
+        // filenames.push_back("combined.txt.model");
+        filenames.push_back(Pvd::get_instance().alg_c4_file1);
         types.push_back(NodeDetector::CD_HIK); // second node
         //upper_bounds.push_back(117);	//353
 
-        upper_bounds.push_back(20);	//353   small model ,like 3M
+        upper_bounds.push_back(20);	//20   small model ,like 3M
         //      upper_bounds.push_back(50);	//353
         //         // upper_bounds.push_back(353);	//353
-        filenames.push_back("combined2.txt.model");
+        // filenames.push_back("combined2.txt.model");
+        filenames.push_back(Pvd::get_instance().alg_c4_file2);
 #else
         upper_bounds.push_back(100);	//100
         filenames.push_back("combined.txt.model");

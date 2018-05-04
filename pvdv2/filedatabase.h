@@ -109,15 +109,19 @@ FileDatabase(string file_name);
 //    }
 
 
-void save(string json_data)
+void save(string data)
 {
-
-    save_file(json_data);
+    save_file(data);
 }
-bool load(string &json_data)
+bool load(string &data)
 {
-    return    load_file(json_data);
-
+    return load_file(data);
+}
+string load()
+{
+    string data;
+    load_file(data);
+    return data;
 }
 private:
 string name;

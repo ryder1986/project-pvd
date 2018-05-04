@@ -18,7 +18,7 @@ public:
     void send(QByteArray datagram,const QHostAddress addr)
     {
         udp_skt->writeDatagram(datagram.data(), datagram.size(),
-                               addr, Pvd::SERVER_DATA_OUTPUT_PORT);
+                               addr, Pvd::get_instance().client_data_port);
     }
 private:
     ProcessedDataSender(){

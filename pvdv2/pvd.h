@@ -18,40 +18,7 @@ using  namespace Json ;
 typedef  Value JsonValue;
 
 #endif
-class Pvd{
-public:
-    enum LENGTH_FIXED_VALUE{
-        STR_LENGTH=100,
-        PATH_LENGTH=1000,
-        BUFFER_LENGTH=1000,
-        BUFFER_MAX_LENGTH=3000
-    };
-    enum CMD{
-        GET_CONFIG=1,
-        SET_CONFIG,
-        INSERT_CAMERA,
-        DELETE_CAMERA,
-        MOD_CAMERA_ATTR,
-        MOD_CAMERA_ALG,
-        CAM_OUTPUT_OPEN,
-        CAM_OUTPUT_CLOSE,
-        HEART,
-        REBOOT,
-        MOD_DEVICE_ATTR
-    };
-    enum RETURN{
-        OK=0,
-        PARSE_ERROR,
-        NEED_UPDATE,
-        INVALID_VALUE
-    };
-    enum PORTS{
-        SERVER_PORT=12345,
-        SERVER_DATA_OUTPUT_PORT=12346,
-        CLIENT_REPORTER_PORT=12347,
-        SERVER_REPORTER_PORT=12348
-    };
-};
+
 #if 0
 class DataPacket{
 public:
@@ -74,21 +41,21 @@ public:
         QJsonDocument doc(obj);
         return doc.toJson().data();
     }
- //   template <typename tp>
-//    void set_value(QString name,tp value)
-//    {
-//        QJsonObject obj=jv.toObject();
-//        obj[name]=value;
-//        jv=obj;
+    //   template <typename tp>
+    //    void set_value(QString name,tp value)
+    //    {
+    //        QJsonObject obj=jv.toObject();
+    //        obj[name]=value;
+    //        jv=obj;
 
-//    }
-//    void set_string(QString name,QString value)
-//    {
-//        QJsonObject obj=jv.toObject();
-//        obj[name]=value;
-//        jv=obj;
+    //    }
+    //    void set_string(QString name,QString value)
+    //    {
+    //        QJsonObject obj=jv.toObject();
+    //        obj[name]=value;
+    //        jv=obj;
 
-//    }
+    //    }
     DataPacket(vector<JsonValue> v)
     {
         QJsonArray ar;
@@ -144,7 +111,7 @@ public:
 
     string get_string(QString name)
     {
-      //  return string(get_value(name).toString().toStdString().data());
+        //  return string(get_value(name).toString().toStdString().data());
         return string(get_value(name).toString().toUtf8());
     }
 
@@ -246,11 +213,11 @@ public:
         }
         val=v;
     }
-//    template <typename tp>
-//    void set_value(string name,tp value)
-//    {
-//        val[name]=value;
-//    }
+    //    template <typename tp>
+    //    void set_value(string name,tp value)
+    //    {
+    //        val[name]=value;
+    //    }
 
 
 
@@ -275,10 +242,10 @@ public:
         val[name]=v;
     }
 
-        void set_value(string name,JsonValue value)
-        {
-            val[name]=value;
-        }
+    void set_value(string name,JsonValue value)
+    {
+        val[name]=value;
+    }
 
 
     JsonValue get_value(string name)
@@ -309,7 +276,7 @@ public:
         vector<JsonValue>  ar;
         int sz=v.size();
         for(int i=0;i<sz;i++){
-           ar.push_back( v[i]);
+            ar.push_back( v[i]);
         }
         return ar;
     }
@@ -338,7 +305,7 @@ public:
     }
     string data()
     {
-       // Reader r;
+        // Reader r;
         FastWriter  w;
         return  w.write(val);
 
@@ -350,6 +317,87 @@ private:
 //{
 //     return str.data();
 //}
+#include "filedatabase.h"
+class Pvd{
+private:
+    Pvd()
+    {
+        server_port=12345;
+        client_data_port=12346;
+    }
+    Pvd(string data)
+    {
+        DataPacket pkt(data);
+        server_port=pkt.get_int("server_port");
+        client_data_port=pkt.get_int("client_data_port");
+        alg_hog_file1=pkt.get_string("alg_hog_file1");
+        alg_c4_file1=pkt.get_string("alg_c4_file1");
+        alg_c4_file2=pkt.get_string("alg_c4_file2");
+        config_file=pkt.get_string("config_file");
+    }
+    //   FileDatabase server_setting("rcs/server.json");
+    //    string data;
+    //    if(server_setting.load(data)){
+    //        Pvd::get_setting(data);
+    //    }else{
+    //        exit(0);
+    //    }
+public:
+    int server_port;
+    int client_data_port;
+    string alg_hog_file1;
+    string alg_c4_file1;
+    string alg_c4_file2;
+    string config_file;
+    static Pvd& get_instance()
+    {
+#if 1
+        static  FileDatabase server_setting("rcs/server.json");
+        static Pvd pvd(server_setting.load());
+#else
+        static Pvd pvd;
+#endif
+        return pvd;
+    }
 
+    //    static void get_setting(string data)
+    //    {
+    //        DataPacket pkt(data);
+    //        server_port=pkt.get_int("server_port");
+    //    }
+
+    //    static int server_port=0;
+    enum LENGTH_FIXED_VALUE{
+        STR_LENGTH=100,
+        PATH_LENGTH=1000,
+        BUFFER_LENGTH=1000,
+        BUFFER_MAX_LENGTH=3000
+    };
+    enum CMD{
+        GET_CONFIG=1,
+        SET_CONFIG,
+        INSERT_CAMERA,
+        DELETE_CAMERA,
+        MOD_CAMERA_ATTR,
+        MOD_CAMERA_ALG,
+        CAM_OUTPUT_OPEN,
+        CAM_OUTPUT_CLOSE,
+        HEART,
+        REBOOT,
+        MOD_DEVICE_ATTR
+    };
+    enum RETURN{
+        OK=0,
+        PARSE_ERROR,
+        NEED_UPDATE,
+        INVALID_VALUE
+    };
+    enum PORTS{
+        //        SERVER_PORT=12345,
+        //        SERVER_DATA_OUTPUT_PORT=12346,
+        CLIENT_REPORTER_PORT=12347,
+        SERVER_REPORTER_PORT=12348
+    };
+};
 #endif
 #endif // PD_H

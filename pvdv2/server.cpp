@@ -7,16 +7,16 @@ Server::Server(FileDatabase *db):database(db),camera_manager(NULL)
     camera_manager=new CameraManager(cfg.cams_cfg);
     bool ret=false;
     server=new QTcpServer();
-    ret=server->listen(QHostAddress::Any,Pvd::SERVER_PORT);
+    ret=server->listen(QHostAddress::Any,Pvd::get_instance().server_port);
     if(ret){
-        prt(info,"Server listen on port %d success!",Pvd::SERVER_PORT);
+        prt(info,"Server listen on port %d success!",Pvd::get_instance().server_port);
     } else {
-        prt(fatal,"Server listen on port %d failed!",Pvd::SERVER_PORT);
+        prt(fatal,"Server listen on port %d failed!",Pvd::get_instance().server_port);
         exit(1);
     }
     connect(server, &QTcpServer::newConnection, this,
             &Server::new_connection);
-    service.start();
+//    service.start();
 }
 Server::~Server()
 {
