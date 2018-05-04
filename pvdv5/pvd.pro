@@ -36,6 +36,13 @@ SOURCES += \
     cppjson/json_value.cpp \
     cppjson/json_writer.cpp
 
+
+INCLUDEPATH+=track
+SOURCES +=track/Ctracker.cpp track/HungarianAlg.cpp  track/Kalman.cpp
+HEADERS += track/defines.h track/HungarianAlg.h track/Kalman.h track/Ctracker.h
+
+
+
 install_files.files+=res
 install_files.path=$$OUT_PWD/
 LIBS+=-L$$CVPATH/$$CV_PREFIX/lib -lopencv_core -lopencv_highgui \
