@@ -69,7 +69,8 @@ public:
         loaded=false;
         set_config(jv);
         p_scanner=new DetectionScanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,arg.scale_ratio);
-        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
+//        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
+        tracker=new CTracker(0.2f, 0.1f, 60.0f, Pvd::get_instance().kalman_lost_frame_threhold, Pvd::get_instance().kalman_trace_len);
 
     }
 

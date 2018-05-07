@@ -331,7 +331,9 @@ private:
         alg_c4_file1=pkt.get_string("alg_c4_file1");
         alg_c4_file2=pkt.get_string("alg_c4_file2");
         config_file=pkt.get_string("config_file");
-    }
+        kalman_lost_frame_threhold=pkt.get_int("kalman_lost_frame_threhold");
+        kalman_trace_len=pkt.get_int("kalman_trace_len");
+     }
 
 public:
     int server_port;
@@ -340,6 +342,8 @@ public:
     string alg_c4_file1;
     string alg_c4_file2;
     string config_file;
+    int kalman_lost_frame_threhold;
+    int kalman_trace_len;
     static Pvd& get_instance()//ensure only 1 copy of Pvd exist in memory.
     {
 #if 1

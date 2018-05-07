@@ -139,7 +139,6 @@ private:
 
     void send_out(string ba)
     {
-        //  emit output(ba);
         ProcessedDataSender *s=ProcessedDataSender::get_instance();
         foreach (QString ip, ip_list) {
             s->send(ba.data(),QHostAddress(ip));
