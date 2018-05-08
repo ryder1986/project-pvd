@@ -1,5 +1,5 @@
 #include "camera.h"
-Camera::Camera(JsonValue jv):processor(NULL)
+Camera::Camera(JsonValue jv)
 {
     frame_rate=0;
     quit=false;
@@ -14,15 +14,8 @@ bool Camera::modify_alg(JsonValue jv)
 {
 
     DataPacket pkt(jv);
-    cam_cfg.alg.selected_alg= pkt.get_string("selected_alg");
-    JsonValue jv_pvd_c4=  pkt.get_value("pvd_c4");
-    JsonValue jv_pvd_hog= pkt.get_value("pvd_hog");
-    //        if(jv_selected_alg.isNull()||jv_pvd_c4.isNull()||jv_pvd_hog.isNull()){
-    //            return false;
-    //        }TODO: remove value , instead string?
-
-    cam_cfg.alg.pvd_c4= jv_pvd_c4;
-    cam_cfg.alg.pvd_hog= jv_pvd_hog;
+    int no= pkt.get_int("modify_channel_no");
+    cam_cfg.chs[no-1]=pkt.get_value("chnanel_data");
     restart_processor();
     return true;
 }
@@ -68,8 +61,11 @@ void Camera::run()
         if(src->get_frame(frame)&&frame.cols>0&&frame.rows>0){
             frame_rate++;
             // bool ret=process(frame,rst);
-            bool ret=processor->process(frame);
-            send_out(processor->get_rst());
+            foreach (VideoProcessor *processor, processors) {
+                bool ret=processor->process(frame);
+                send_out(processor->get_rst());
+            }
+
         }else{
             //prt(info,"get no frame");
         }

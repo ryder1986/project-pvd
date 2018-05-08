@@ -4,7 +4,10 @@
 class PvdHogProcessor : public VideoProcessor
 {
     typedef struct args{
+        double scale_ratio;
+        int scan_step;
         Rect area;
+        int no;
     }arg_t;
     arg_t arg;
     typedef struct process_result{
@@ -20,12 +23,45 @@ class PvdHogProcessor : public VideoProcessor
     }m_result;
 
 public:
-    PvdHogProcessor(JsonValue):VideoProcessor()
+    PvdHogProcessor(JsonValue jv):VideoProcessor()
     {
+        set_config(jv);
     }
     string get_rst()
     {
         return alg_rst;
+    }
+    void set_config(JsonValue jv)
+    {
+        DataPacket pkt(jv);
+
+
+        arg.no=pkt.get_int("channel_id");
+        vector <JsonValue> area=pkt.get_array("detect_area");
+        arg.area=area_2_rect(area);
+    }
+    Rect area_2_rect(vector<JsonValue> area)
+    {
+        int x_min=10000;
+        int y_min=10000;
+        int x_max=0;
+        int y_max=0;
+        foreach (JsonValue v, area) {
+            DataPacket pkt(v);
+            int x=pkt.get_int("x");
+            int y=pkt.get_int("y");
+            //              int x= v.toObject()["x"].toInt();
+            //            int y= v.toObject()["y"].toInt();
+            if(x<x_min)
+                x_min=x;
+            if(x>x_max)
+                x_max=x;
+            if(y<y_min)
+                y_min=y;
+            if(y>y_max)
+                y_max=y;
+        }
+        return Rect(x_min,y_min,x_max-x_min,y_max-y_min);
     }
 
     bool process(Mat img_src)
@@ -64,9 +100,12 @@ public:
             DataPacket pkt_rct;
             pkt_rct.set_value("x",rct.x+arg.area.x);
             pkt_rct.set_value("y",rct.y+arg.area.y);
+//            pkt_rct.set_value("x",rct.x+arg.area.x);
+//            pkt_rct.set_value("y",rct.y+arg.area.y);
             pkt_rct.set_value("w",rct.width);
             pkt_rct.set_value("h",rct.height);
             ve.push_back(pkt_rct.value());
+            prt(info,"1 person in %d %d %d %d",pkt_rct.get_int("x"),pkt_rct.get_int("y"),pkt_rct.get_int("w"),pkt_rct.get_int("h"));
         }
 
         pkt.set_array("rects",ve);
@@ -83,7 +122,7 @@ private:
         CascadeClassifier cascade;
         bool ret=false;
         vector<Rect> objs;
-        string cascade_name = "hogcascade_pedestrians.xml";
+        string cascade_name = Pvd::get_instance().alg_hog_file1;
         if (!cascade.load(cascade_name))
         {
             prt(info,"can't load cascade");

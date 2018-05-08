@@ -56,20 +56,27 @@ public:
     QList <QPoint> get_v()
     {QList <QPoint>  p;
         p.clear();
-      QJsonObject ob=  cam_cfg.alg.toObject();
+      QJsonObject ob=  cam_cfg.alg.toArray()[0].toObject();
       QString alg_str=ob["selected_alg"].toString();
-      if(alg_str=="pvd_c4"){
-           QJsonArray ps= ob["pvd_c4"].toObject()["detect_area"].toArray();
-           foreach (QJsonValue v, ps) {
-               p.append(QPoint(v.toObject()["x"].toInt(),v.toObject()["y"].toInt()));
-           }
-      }else if(alg_str=="pvd_hog")
-      {
-          QJsonArray ps= ob["pvd_hog"].toObject()["detect_area"].toArray();
-          foreach (QJsonValue v, ps) {
-              p.append(QPoint(v.toObject()["x"].toInt(),v.toObject()["y"].toInt()));
-          }
+      QJsonArray ps= ob[alg_str].toObject()["detect_area"].toArray();
+      foreach (QJsonValue v, ps) {
+          p.append(QPoint(v.toObject()["x"].toInt(),v.toObject()["y"].toInt()));
       }
+
+
+
+//      if(alg_str=="pvd_c4"){
+//           QJsonArray ps= ob["pvd_c4"].toObject()["detect_area"].toArray();
+//           foreach (QJsonValue v, ps) {
+//               p.append(QPoint(v.toObject()["x"].toInt(),v.toObject()["y"].toInt()));
+//           }
+//      }else if(alg_str=="pvd_hog")
+//      {
+//          QJsonArray ps= ob["pvd_hog"].toObject()["detect_area"].toArray();
+//          foreach (QJsonValue v, ps) {
+//              p.append(QPoint(v.toObject()["x"].toInt(),v.toObject()["y"].toInt()));
+//          }
+//      }
       if(p.size()!=4)
           p.clear();
       return p;
@@ -127,7 +134,7 @@ private:
         jv.toObject()["password"]= cam_cfg.password;
         jv.toObject()["camera_ip"]= cam_cfg.camera_ip;
         jv.toObject()["camera_port"]= cam_cfg.camera_port;
-        jv.toObject()["alg"]=cam_cfg.alg;
+        jv.toObject()["channel"]=cam_cfg.alg;
 
         return jv;
 
@@ -141,7 +148,7 @@ private:
         cam_cfg.password=cfg.toObject()["password"].toString();
         cam_cfg.camera_ip=cfg.toObject()["camera_ip"].toString();
         cam_cfg.camera_port=cfg.toObject()["camera_port"].toInt();
-        cam_cfg.alg=cfg.toObject()["alg"];
+        cam_cfg.alg=cfg.toObject()["channel"];
     }
 
     VideoSource *src;

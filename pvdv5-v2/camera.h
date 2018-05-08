@@ -27,7 +27,8 @@ class Camera : public QThread
         string password;
         string camera_ip;
         int camera_port;
-        alg_t alg;
+        vector <JsonValue> chs;
+        //alg_t alg;
     }Config_t;
     Rect detect_rect;
 public:
@@ -69,14 +70,22 @@ private:
     void restart_processor()
     {
         mtx.lock();
-        string str=cam_cfg.alg.selected_alg;
-        if(processor)
-            delete processor;
-        if(str=="pvd_c4"){
-            processor=new PvdC4Processor(cam_cfg.alg.pvd_c4);
-        }else if(str=="pvd_hog"){
-            processor=new PvdHogProcessor(cam_cfg.alg.pvd_hog);
+        if(processors.size()){
+            foreach (VideoProcessor *p, processors) {
+                delete p;
+            }
+            processors.clear();
         }
+        foreach (JsonValue v, cam_cfg.chs) {
+            DataPacket pkt(v);
+            string str=pkt.get_string("selected_alg");
+            if(str=="pvd_c4"){
+                processors.push_back(new PvdC4Processor(pkt.get_value(str)));
+            }else if(str=="pvd_hog"){
+                processors.push_back(new PvdHogProcessor(pkt.get_value(str)));
+            }
+        }
+
         mtx.unlock();
     }
 
@@ -95,9 +104,13 @@ private:
         this->wait();//TODO, maybe we dont need wait?
         prt(info," camera %s stoped",this->src->get_url().data());
         delete src;
-        delete processor;
+        if(processors.size()){
+            foreach (VideoProcessor *p, processors) {
+                delete p;
+            }
+            processors.clear();
+        }
         src=NULL;
-        processor=NULL;
     }
 
     virtual JsonValue cfg_2_jv()
@@ -111,11 +124,9 @@ private:
         pkt.set_string("camera_ip",cam_cfg.camera_ip);
         pkt.set_int("camera_port",cam_cfg.camera_port);
 
-        DataPacket pkt_alg;
-        pkt_alg.set_string("selected_alg",cam_cfg.alg.selected_alg);
-        pkt_alg.set_value("pvd_c4",cam_cfg.alg.pvd_c4);
-        pkt_alg.set_value("pvd_hog",cam_cfg.alg.pvd_hog);
-        pkt.set_value("alg",pkt_alg.value());
+        DataPacket
+        pkt_alg(cam_cfg.chs);
+        pkt.set_value("channel",pkt_alg.value());
 
         return pkt.value();
     }
@@ -130,11 +141,9 @@ private:
         cam_cfg.password=pkt.get_string("password");
         cam_cfg.camera_ip=pkt.get_string("camera_ip");
         cam_cfg.camera_port=pkt.get_int("camera_port");
-        JsonValue alg=pkt.get_value("alg");
-        DataPacket pkt_alg(alg);
-        cam_cfg.alg.selected_alg=pkt_alg.get_string("selected_alg");
-        cam_cfg.alg.pvd_c4=pkt_alg.get_value("pvd_c4");
-        cam_cfg.alg.pvd_hog=pkt_alg.get_value("pvd_hog");
+        JsonValue ch=pkt.get_value("channel");
+        DataPacket pkt_alg(ch);
+        cam_cfg.chs =pkt_alg.array_value();
     }
 
     void send_out(string ba)
@@ -159,7 +168,8 @@ private:
     int threadid;
     QTimer *tmr;
     VideoSource *src;
-    VideoProcessor *processor;
+    //  VideoProcessor *processor;
+    vector <VideoProcessor *> processors;
     Config_t cam_cfg;
     bool quit;
     mutex mtx;

@@ -27,6 +27,7 @@ class PvdC4Processor : public VideoProcessor
         double scale_ratio;
         int scan_step;
         Rect area;
+        int no;
     }arg_t;
     arg_t arg;
     typedef struct process_result{
@@ -86,6 +87,7 @@ public:
         DataPacket pkt(jv);
         arg.scale_ratio=atof((pkt.get_string("ratio").data()));
         arg.scan_step=pkt.get_int("step");
+        arg.no=pkt.get_int("channel_id");
         vector <JsonValue> area=pkt.get_array("detect_area");
         arg.area=area_2_rect(area);
     }
@@ -130,6 +132,7 @@ public:
         pkt.set_int("duration",r.duration);
         pkt.set_int("other_count",r.other_count);
         pkt.set_int("flow",r.flow);
+        pkt.set_int("channel_id",arg.no);
 
         if(busy){
           //  cout<<r.duration<<endl;
