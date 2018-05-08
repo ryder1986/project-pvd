@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS+=client
+SUBDIRS+=client \
+    client1
