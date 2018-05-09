@@ -5,6 +5,7 @@
 #include "pvd.h"
 class DataManager
 {
+public:
     typedef struct pnt{
         int x;
         int y;
@@ -47,6 +48,16 @@ class DataManager
     }config_t;
     config_t cfg;
 public:
+    vector <string> get_cams()
+    {
+        vector <string>  cams;
+
+        foreach (cam_t c, cfg.cams) {
+            cams.push_back(c.url);
+        }
+        return cams;
+    }
+
     DataManager()
     {
 
@@ -78,12 +89,58 @@ public:
         pkt.set_string("time_machine_ip",cfg.time_machine_ip);
         vector <JsonValue> cms;
         foreach (cam_t c, cfg.cams) {
-          cms.push_back(encode_camera(c));
+            cms.push_back(encode_camera(c));
         }
         pkt.set_value("cameras",DataPacket(cms).value());
         return pkt.data();
     }
+    QList <QPoint> get_points(int cam_index)
+    {
+        QList <QPoint> pns;
+        cam_t cam= cfg.cams[cam_index-1];
+        foreach (cha_t channel, cam.channels) {
+            if( channel.selected_alg=="pvd_c4"){
 
+                foreach (pnt_t p, channel.c4.detect_area) {
+                    pns.append(QPoint(p.x,p.y));
+                }
+
+            }
+            if( channel.selected_alg=="pvd_hog"){
+
+                foreach (pnt_t p, channel.hog.detect_area) {
+                    pns.append(QPoint(p.x,p.y));
+                }
+            }
+        }
+        return pns;
+    }
+    void set_points(  QList <QPoint>  pns,int cam_index)
+    {
+
+        cam_t *p_cam= &cfg.cams[cam_index-1];
+        int i=0;
+
+        for(int i=0;i<p_cam->channels.size();i++)
+        {    cha_t *p_c=&p_cam->channels[i];
+            if(  p_c->selected_alg=="pvd_c4"){
+                   for(int j=0;j<4;j++){
+                       p_c->c4.detect_area[j].x=pns[j+4*i].x();
+                       p_c->c4.detect_area[j].y=pns[j+4*i].y();
+                    }
+
+            }
+            if(p_c->selected_alg=="pvd_hog"){
+                for(int j=0;j<4;j++){
+                    p_c->hog.detect_area[j].x=pns[j+4*i].x();
+                    p_c->hog.detect_area[j].y=pns[j+4*i].y();
+                 }
+
+
+            }
+         }
+
+    }
 
 private:
     cam_t  decode_camera(JsonValue data)

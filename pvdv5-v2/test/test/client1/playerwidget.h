@@ -13,6 +13,7 @@
 #include <QDebug>
 #include "opencv2/core/core.hpp"
 #include  <QGroupBox>
+#include <datamanager.h>
 using namespace cv;
 class LayoutPainter{
 public:
@@ -110,6 +111,8 @@ public:
         data.clear();
         picked=false;
 
+        poly_num=4;//rectangles
+        channel_num=pns.size()/poly_num;
         //    p=new QPainter(par);
     }
 
@@ -119,47 +122,47 @@ public:
     }
     void unpack_rst(m_result &rst,QByteArray ba)
     {
-    //    rst.rects
-          DataPacket pkt(string(ba.data()));
-          vector <JsonValue> rs=pkt.get_array("rects");
-          foreach (JsonValue v, rs) {
-              DataPacket p(v);
-              int w= p.get_int("w");
-              int h= p.get_int("h");
-              int x= p.get_int("x");
-              int y= p.get_int("y");
-              rst.rects.push_back(Rect(x,y,w,h));
-               }
+        //    rst.rects
+        DataPacket pkt(string(ba.data()));
+        vector <JsonValue> rs=pkt.get_array("rects");
+        foreach (JsonValue v, rs) {
+            DataPacket p(v);
+            int w= p.get_int("w");
+            int h= p.get_int("h");
+            int x= p.get_int("x");
+            int y= p.get_int("y");
+            rst.rects.push_back(Rect(x,y,w,h));
+        }
 
-                  rst.width= pkt.get_int("width");
-                  rst.height= pkt.get_int("height");
+        rst.width= pkt.get_int("width");
+        rst.height= pkt.get_int("height");
 
-//        // QJsonObject obj=pkt.data();
-//        //   qDebug()<<"------start pkt--------";
-//        //    qDebug()<<ba;
-//        //  qDebug()<<"---end pkt----";
-//        printf("===>%s<===",ba.data());
-//        fflush(NULL);
-//        rst.width= pkt.get_value("width").toInt();
-//        rst.height= pkt.get_value("height").toInt();
-//        rst.exist= pkt.get_value("exist").toInt();
-//        rst.count= pkt.get_value("count").toInt();
-//        rst.front_count= pkt.get_value("front_count").toInt();
-//        rst.back_count= pkt.get_value("back_count").toInt();
-//        rst.other_count= pkt.get_value("other_count").toInt();
-//        rst.duration= pkt.get_value("duration").toInt();
+        //        // QJsonObject obj=pkt.data();
+        //        //   qDebug()<<"------start pkt--------";
+        //        //    qDebug()<<ba;
+        //        //  qDebug()<<"---end pkt----";
+        //        printf("===>%s<===",ba.data());
+        //        fflush(NULL);
+        //        rst.width= pkt.get_value("width").toInt();
+        //        rst.height= pkt.get_value("height").toInt();
+        //        rst.exist= pkt.get_value("exist").toInt();
+        //        rst.count= pkt.get_value("count").toInt();
+        //        rst.front_count= pkt.get_value("front_count").toInt();
+        //        rst.back_count= pkt.get_value("back_count").toInt();
+        //        rst.other_count= pkt.get_value("other_count").toInt();
+        //        rst.duration= pkt.get_value("duration").toInt();
 
-//        QJsonArray rects=pkt.get_value("rects").toArray();
-//        foreach (QJsonValue v, rects) {
-//            //   QJsonObject rc;
-//            DataPacket pkt1(v.toObject());
-//            Rect rct1;
-//            rct1.x=pkt1.get_value("x").toInt();
-//            rct1.y=pkt1.get_value("y").toInt();
-//            rct1.width=pkt1.get_value("w").toInt();
-//            rct1.height=pkt1.get_value("h").toInt();
-//            rst.rects.push_back(rct1);
-//        }
+        //        QJsonArray rects=pkt.get_value("rects").toArray();
+        //        foreach (QJsonValue v, rects) {
+        //            //   QJsonObject rc;
+        //            DataPacket pkt1(v.toObject());
+        //            Rect rct1;
+        //            rct1.x=pkt1.get_value("x").toInt();
+        //            rct1.y=pkt1.get_value("y").toInt();
+        //            rct1.width=pkt1.get_value("w").toInt();
+        //            rct1.height=pkt1.get_value("h").toInt();
+        //            rst.rects.push_back(rct1);
+        //        }
         // rst.rects
 
     }
@@ -271,8 +274,8 @@ public:
     void try_pick(QPoint point)
     {
         int i=0;
-        if(pns_now.size()==4)
-            for (i=0;i<4;i++) {
+        if(pns_now.size()==channel_num*poly_num)
+            for (i=0;i<pns_now.size();i++) {
                 if(abs(point.x()-pns_now[i].x())<10&&abs(point.y()-pns_now[i].y())<10){
                     prt(info,"%d slect",i+1);
                     picked=true;
@@ -312,8 +315,8 @@ public:
         int i=0;
         //  pns_now.reserve(4);
         pns_now.clear();
-        if(pns.size()==4){
-            for(i=0;i<4;i++)
+        if(pns.size()>0){
+            for(i=0;i<pns.size();i++)
                 pns_now.append((QPoint(pns[i].x()*window_w/picture_w,pns[i].y()*window_h/picture_h)));
             //          pns_now.append((QPoint(pns[i].x()*window_w/640,pns[i].y()*window_h/480)));
         }
@@ -321,11 +324,74 @@ public:
     void set_points()
     {
         int i=0;
-        if(pns_now.size()==4){
-            for(i=0;i<4;i++)
+        if(pns_now.size()>0){
+            for(i=0;i<pns_now.size();i++)
                 pns[i]=QPoint(pns_now[i].x()*picture_w/window_w,pns_now[i].y()*picture_h/window_h);
             //    pns[i]=QPoint(pns_now[i].x()*wi_ori/window_w,pns_now[i].y()*he_ori/window_h);
             //   pns[i]=QPoint(pns_now[i].x()*640/window_w,pns_now[i].y()*480/window_h);
+        }
+    }
+
+
+    void paint_rect1(QPainter *pt,int w,int h)
+    {
+        picture_w=w;
+        picture_h=h;
+        window_w=pt->window().width();
+        window_h=pt->window().height();
+        get_points();
+        if(1){
+            //if(pns.size()==4){
+            //  prt(info,"ps ok");
+
+            //            QBrush brush1(QColor(0,0,222));
+            //            QPen pen(brush1,5);
+            //            pt->setPen(pen);
+
+            pt->setPen( QPen (QBrush (QColor(0,0,222)),5));
+
+            QPointF p[poly_num*channel_num];
+            //            p[0]=pns[0];
+            //            p[1]=pns[1];
+            //            p[2]=pns[2];
+            //            p[3]=pns[3];
+
+
+            //            p[0]=get_point(pns[0],w,h);
+            //            p[1]=get_point(pns[1],w,h);
+            //            p[2]=get_point(pns[2],w,h);
+            //            p[3]=get_point(pns[3],w,h);
+
+            get_points();
+            for(int j=0;j<channel_num;j++){
+                for(int i=0;i<poly_num;i++){
+
+                    p[i+poly_num*j]=pns_now[i+poly_num*j];
+                    pt->drawEllipse(p[i+poly_num*j],10,10);
+                    if(picked&&(i+j*poly_num)==index){
+
+                        pt->save();
+                        pt->setPen( QPen (QBrush (QColor(222,0,0)),5));
+                        pt->drawEllipse(p[i+poly_num*j],10,10);
+                        pt->restore();
+                    }
+
+                }
+                pt->setPen( QPen (QBrush (QColor(0,0,222)),5));
+                pt->drawPolygon((QPointF *)(p+j*poly_num),poly_num);
+            }
+
+
+
+            //            p[0].setX(p[0].x()*w/wi); p[0].setY(p[0].y()*h/he);
+            //            p[1].setX(p[1].x()*w/wi); p[1].setY(p[1].y()*h/he);
+            //            p[2].setX(p[2].x()*w/wi); p[2].setY(p[2].y()*h/he);
+            //            p[3].setX(p[3].x()*w/wi); p[3].setY(p[3].y()*h/he);
+
+            //  pt->drawPolyline((QPointF *)p,4);
+
+        }else{
+            prt(info,"ps err");
         }
     }
 
@@ -386,6 +452,7 @@ public:
             prt(info,"ps err");
         }
     }
+
     void set_data(QByteArray ba)
     {
         data=ba;
@@ -406,14 +473,32 @@ private:
 
     int window_w;
     int window_h;
+
+    int channel_num;
+    int poly_num;//rectangles
 };
 
+
+#include <datamanager.h>
 class PlayerWidget : public QOpenGLWidget
 {
     Q_OBJECT
+
+    DataManager *dma;
+    int cam_index;
 public:
-    PlayerWidget(QGroupBox *)
+    PlayerWidget(QGroupBox *d)
     {
+
+
+    }
+    void set_data( DataManager *dm,int index)
+    {
+        cam_index=index;
+        dma=dm;
+        pt=new LayoutPainter(dm->get_points(index));
+        channel_num=0;
+        poly_num=4;//rectangles
 
     }
 
@@ -472,12 +557,13 @@ protected:
             //     prt(info,"%d %d",img.byteCount(),img.bytesPerLine());
             painter.drawImage(QRect(0,0,this->width(),this->height()),img);
             //      bool active=painter.isActive();
-        //    pt->paint(&painter);
+            //    pt->paint(&painter);
 
-
+            pt->paint_rect1(&painter,img.width(),img.height());
         }
+
         lock.unlock();
-//        qDebug()<<"paint";
+        //        qDebug()<<"paint";
 #else
         // if(img1.width()>0){
         if(1){
@@ -518,12 +604,12 @@ protected:
     }
 
 public slots:
-    void set_layout_data(QByteArray data)
-    {
-        //    lock.lock();
-        pt->set_data(data);
-        //    lock.unlock();
-    }
+    //    void set_layout_data(QByteArray data)
+    //    {
+    //        //    lock.lock();
+    //        pt->set_data(data);
+    //        //    lock.unlock();
+    //    }
 
     void check_rate()
     {
@@ -544,7 +630,9 @@ public slots:
     void mouseReleaseEvent(QMouseEvent *e )
     {
         if(pt->try_put()){
-            emit rect_changed(pt->points());
+            emit data_changed();
+            dma->set_points(pt->points(),cam_index);
+
         }
     }
     void mouseMoveEvent(QMouseEvent *e)
@@ -557,7 +645,7 @@ public slots:
 
 signals:
     void selected(PlayerWidget *w);
-    void rect_changed( QList <QPoint>);
+    void data_changed();
 private:
     QImage img;
     QString title;
@@ -567,6 +655,8 @@ private:
     QPainter painter;
     QList <QPoint> area_v;
     bool show_info;
+    int channel_num;
+    int poly_num;
     //  QList <QPoint> points;
     //    QByteArray ba;
 };

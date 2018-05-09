@@ -46,3 +46,20 @@ void MainWindow::on_pushButton_send_clicked()
 {
     clt.send_msg(ui->textEdit_send->toPlainText().toUtf8());
 }
+
+void MainWindow::on_pushButton_getconfig_clicked()
+{
+   clt.get_config();
+}
+
+void MainWindow::on_pushButton_setconfig_clicked()
+{
+   clt.set_config(dm.get().data());
+}
+
+void MainWindow::on_pushButton_addcam_clicked()
+{
+   QString url= ui->lineEdit_addcam->text();
+
+   clt.add_camera(url,dm.get_cams().size());
+}

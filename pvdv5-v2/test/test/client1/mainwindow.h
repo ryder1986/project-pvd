@@ -13,23 +13,21 @@
 namespace Ui {
 class MainWindow;
 }
-
-class MainWindow : public QMainWindow
+class PlayerBox:public PlayerWidget
 {
     Q_OBJECT
-    DataManager dm;
+    int cam_index;
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-public slots:
-    void open_config(bool ss,string cfg)
+    PlayerBox(string url,DataManager *dm,int index):PlayerWidget(NULL)
     {
-        dm.set(cfg);
-        dm.set(dm.get());
+        cam_index=index;
+        this->set_data(dm,index);
+        connect(&tmr,SIGNAL(timeout()),this,SLOT(play_a_frame()));
+        tmr.start(1);
+        src=new VideoSource(url);
     }
-
-    void timeup()
+public slots:
+    void  play_a_frame()
     {
         Mat rgb_frame;
         Mat bgr_frame;
@@ -40,20 +38,85 @@ public slots:
             img1=QImage((const uchar*)(rgb_frame.data),
                         rgb_frame.cols,rgb_frame.rows,
                         QImage::Format_RGB888);
-            PlayerWidget *wgt=ui->widget_picture;
-            if(wgt){
+
+            if(this){
                 img1.bits();
-                wgt->set_image(img1);
-                wgt->set_title(src->get_url().data());
+                this->set_image(img1);
+                this->set_title(src->get_url().data());
                 if(frame_rate%3==0)
-                    wgt->update();
+                    this->update();
                 frame_rate++;
             }
 
-
-                    //   qDebug()<<"get frame";
         }
-        // qDebug()<<"timeup";
+
+    }
+private:
+    VideoSource *src;
+    QTimer tmr;
+    int frame_rate;
+};
+
+class MainWindow : public QMainWindow
+{
+    Q_OBJECT
+    DataManager dm;
+    vector <PlayerBox *> players;
+public:
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+
+public slots:
+    void changed()
+    {
+        clt.set_config(dm.get().data());
+    }
+
+    void open_config(bool ss,string cfg)
+    {
+        // ui->groupBox_picturebox->layout()->removeWidget(ui->widget_picture);
+        ui->widget_picture->hide();
+        dm.set(cfg);
+        vector <string> urls=dm.get_cams();
+        int index=0;
+        for(int i=0;i<players.size();i++){
+           ui->groupBox_picturebox->layout()->removeWidget(players[i]);
+        }
+        players.clear();
+        foreach (string url, urls) {
+            index++;
+            PlayerBox *b=new PlayerBox(url,&dm,index);
+            players.push_back(b);
+            ui->groupBox_picturebox->layout()->addWidget(b);
+            connect(b,SIGNAL(data_changed()),this,SLOT(changed()));
+
+            //   src.start();
+        }
+
+        //    dm.set(dm.get());
+    }
+
+    void timeup()
+    {
+        Mat rgb_frame;
+        Mat bgr_frame;
+        QImage img1;
+        //        bool ret=src->get_frame(bgr_frame);
+        //        if(ret){
+        //            cvtColor(bgr_frame,rgb_frame,CV_BGR2RGB);
+        //            img1=QImage((const uchar*)(rgb_frame.data),
+        //                        rgb_frame.cols,rgb_frame.rows,
+        //                        QImage::Format_RGB888);
+        //            PlayerWidget *wgt=ui->widget_picture;
+        //            if(wgt){
+        //                img1.bits();
+        //                wgt->set_image(img1);
+        //                wgt->set_title(src->get_url().data());
+        //                if(frame_rate%3==0)
+        //                    wgt->update();
+        //                frame_rate++;
+        //            }
+        //        }
     }
 
     void mouseMoveEvent(QMouseEvent *e)
@@ -89,6 +152,12 @@ private slots:
     void on_pushButton_clear_clicked();
 
     void on_pushButton_send_clicked();
+
+    void on_pushButton_getconfig_clicked();
+
+    void on_pushButton_setconfig_clicked();
+
+    void on_pushButton_addcam_clicked();
 
 private:
     Ui::MainWindow *ui;

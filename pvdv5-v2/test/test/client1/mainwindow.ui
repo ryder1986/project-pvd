@@ -80,6 +80,30 @@
          </property>
         </widget>
        </item>
+       <item row="4" column="0">
+        <widget class="QPushButton" name="pushButton_getconfig">
+         <property name="text">
+          <string>get config</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QPushButton" name="pushButton_setconfig">
+         <property name="text">
+          <string>set config</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QPushButton" name="pushButton_addcam">
+         <property name="text">
+          <string>add cam</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLineEdit" name="lineEdit_addcam"/>
+       </item>
       </layout>
      </widget>
     </item>

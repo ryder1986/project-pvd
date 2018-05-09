@@ -85,6 +85,12 @@ public:
         }
     }
 
+    void add_camera(QString url,int index)
+    {
+        QJsonObject obj_cam;
+        obj_cam["url"]=url;
+        add_camera(obj_cam,index);
+    }
 
     void add_camera(QJsonObject obj_cam,int index)
     {
