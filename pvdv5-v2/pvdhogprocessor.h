@@ -23,8 +23,9 @@ class PvdHogProcessor : public VideoProcessor
     }m_result;
 
 public:
-    PvdHogProcessor(JsonValue jv):VideoProcessor()
+    PvdHogProcessor(JsonValue jv,int id):VideoProcessor()
     {
+        arg.no=id;
         set_config(jv);
     }
     string get_rst()
@@ -36,7 +37,7 @@ public:
         DataPacket pkt(jv);
 
 
-        arg.no=pkt.get_int("channel_id");
+     //   arg.no=pkt.get_int("channel_id");
         vector <JsonValue> area=pkt.get_array("detect_area");
         arg.area=area_2_rect(area);
     }

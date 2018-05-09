@@ -9,6 +9,7 @@
 #include <QTimer>
 #include "serverinfosearcher.h"
 #include "client.h"
+#include "datamanager.h"
 namespace Ui {
 class MainWindow;
 }
@@ -16,12 +17,18 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    DataManager dm;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 public slots:
+    void open_config(bool ss,string cfg)
+    {
+        dm.set(cfg);
+        dm.set(dm.get());
+    }
+
     void timeup()
     {
         Mat rgb_frame;

@@ -79,10 +79,11 @@ private:
         foreach (JsonValue v, cam_cfg.chs) {
             DataPacket pkt(v);
             string str=pkt.get_string("selected_alg");
-            if(str=="pvd_c4"){
-                processors.push_back(new PvdC4Processor(pkt.get_value(str)));
+            int channel_id=pkt.get_int("channel_id");
+              if(str=="pvd_c4"){
+                processors.push_back(new PvdC4Processor(pkt.get_value(str),channel_id));
             }else if(str=="pvd_hog"){
-                processors.push_back(new PvdHogProcessor(pkt.get_value(str)));
+                processors.push_back(new PvdHogProcessor(pkt.get_value(str),channel_id));
             }
         }
 

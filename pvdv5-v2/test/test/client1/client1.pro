@@ -18,11 +18,13 @@ client.cpp \
     playerwidget.cpp $$PREFIX/tool.cpp $$PREFIX/videosource.cpp \
 $$PREFIX/pvd.cpp $$PREFIX/cppjson/json_reader.cpp \
     $$PREFIX/cppjson/json_value.cpp \
-    $$PREFIX/cppjson/json_writer.cpp
+    $$PREFIX/cppjson/json_writer.cpp \
+    datamanager.cpp
 
 
 HEADERS  += mainwindow.h serverinfosearcher.h  client.h\
-    playerwidget.h $$PREFIX/tool.h   $$PREFIX/videosource.h  $$PREFIX/pvd.h
+    playerwidget.h $$PREFIX/tool.h   $$PREFIX/videosource.h  $$PREFIX/pvd.h \
+    datamanager.h
 
 FORMS    += mainwindow.ui
 

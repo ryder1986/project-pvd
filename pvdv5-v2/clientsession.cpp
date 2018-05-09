@@ -5,7 +5,8 @@ ClientSession::ClientSession(QTcpSocket *client_skt):skt(client_skt),focus_index
     focus_index=0;
     connect(skt,SIGNAL(readyRead()),this,SLOT(handle_msg()));
     connect(skt,SIGNAL(disconnected()),this,SLOT(deleteLater()));
-  //  connect(skt,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error_happened()));
+    connect(skt,SIGNAL(error(QAbstractSocket::SocketError)),this,SLOT(error_happened()));//TODO,important
+
     client_addr=skt->peerAddress();
 }
 

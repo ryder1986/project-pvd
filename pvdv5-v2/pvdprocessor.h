@@ -42,11 +42,48 @@ class PvdC4Processor : public VideoProcessor
         int flow;
         vector <Rect> rects;
     }m_result;
+
 public:
+//    void set_id(int id)
+//    {
+//        channel_i=id;
+//    }
+
     //  PvdC4Processor():scanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,0.8),VideoProcessor()
     PvdC4Processor(JsonValue jv):VideoProcessor()
     {
 
+        enter_id_old=0;
+        leave_id_old=0;
+        enter_id_new=0;
+        leave_id_new=0;
+
+        enter_count=0;
+        leave_count=0;
+        enter_count_old=0;
+        leave_count_old=0;
+        count=0;
+        count_old=0;
+        count_real=0;
+
+
+        flow=0;
+        busy=false;
+        busy2free=false;
+        free2busy=false;
+        busy_time=0;
+        busy_start_time=0;
+        loaded=false;
+        set_config(jv);
+        p_scanner=new DetectionScanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,arg.scale_ratio);
+//        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
+        tracker=new CTracker(0.2f, 0.1f, 60.0f, Pvd::get_instance().kalman_lost_frame_threhold, Pvd::get_instance().kalman_trace_len);
+
+    }
+
+    PvdC4Processor(JsonValue jv,int cid):VideoProcessor()
+    {
+        arg.no=cid;
         enter_id_old=0;
         leave_id_old=0;
         enter_id_new=0;
@@ -87,7 +124,6 @@ public:
         DataPacket pkt(jv);
         arg.scale_ratio=atof((pkt.get_string("ratio").data()));
         arg.scan_step=pkt.get_int("step");
-        arg.no=pkt.get_int("channel_id");
         vector <JsonValue> area=pkt.get_array("detect_area");
         arg.area=area_2_rect(area);
     }
@@ -509,5 +545,8 @@ private:
     int busy_time;
     int busy_start_time;
 
+
+
+    int channel_id;
 };
 #endif // PVDPROCESSOR_H

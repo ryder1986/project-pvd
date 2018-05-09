@@ -25,6 +25,10 @@ public:
     }
 
 public slots:
+    void error_happened()
+    {
+        emit socket_error(this);
+    }
 
     inline int count_begin_symbol(QByteArray ba)
     {
