@@ -5,6 +5,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+     running=false;
+    focus_index=0;
+    mode=DISPLAY_NORMAL_MODE;
     picked=false;
     ui->setupUi(this);
     src=new VideoSource("rtsp://192.168.1.97:554/av0_1");
@@ -13,6 +16,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&clt,SIGNAL(get_ret(QByteArray)),this,SLOT(server_msg(QByteArray)));
     connect(&clt,SIGNAL(signal_get_config_done(bool,string)),this,
             SLOT(open_config(bool,string)));
+
+    connect(&rcvr,SIGNAL(send_rst(QByteArray)),this,
+            SLOT(set_layout(QByteArray)));
+
     tmr.start(1);
 
 }
@@ -62,4 +69,11 @@ void MainWindow::on_pushButton_addcam_clicked()
    QString url= ui->lineEdit_addcam->text();
 
    clt.add_camera(url,dm.get_cams().size());
+}
+
+
+void MainWindow::on_pushButton_del_clicked()
+{
+    clt.del_camera(ui->lineEdit_delcam->text().toInt());
+
 }

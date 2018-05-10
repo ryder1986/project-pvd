@@ -21,6 +21,10 @@ public:
     virtual  void prepare(QJsonValue v)
     {
     }
+    int get_id()
+    {
+        return channel_id;
+    }
     virtual  bool process( Mat img)
     {
         return false;
@@ -34,5 +38,8 @@ public:
     {
     }
 protected:
+    int channel_id;
+private:
+
 };
 #endif // VIDEOPROCESSOR_H

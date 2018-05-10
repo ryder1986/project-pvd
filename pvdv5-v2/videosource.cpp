@@ -13,7 +13,10 @@ VideoSource::VideoSource(string path)
 VideoSource::~VideoSource()
 {
     quit_flg=true;
-    this->wait();
+   // this->exit(0);
+    prt(info,"quiting  %s", url.data());
+    this->wait();// TODO, we have risk to stuck here.
+    prt(info,"quit %s done", url.data());
     delete tmr;
 
 }
@@ -32,8 +35,12 @@ void VideoSource::run()
         frame_wait_time=40;
     }
     Mat mat_rst;
+    monitor=0;
     int flag_retry=0;
     while(!quit_flg){
+       // if((!(monitor++%30))){
+         //    prt(info,"flg %d",quit_flg);
+       // }
         // prt(info,"runing thread %s",url.toStdString().data());
         if( vcap.isOpened()){
             flag_retry=0;
@@ -49,6 +56,7 @@ void VideoSource::run()
                 prt(info,"restarting %s      ", url.data());
             }else{
                 frame_rate++;
+
                 if(frame_list.size()<3){
                     frame_list.push_back(mat_rst);
                 }
@@ -64,6 +72,7 @@ void VideoSource::run()
             vcap=VideoCapture( url.data());
         }
     }
+    prt(info,"flg %d",quit_flg);
     if( vcap.isOpened())
         vcap.release();
 }

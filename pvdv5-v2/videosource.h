@@ -60,8 +60,9 @@ public slots:
     void handle_time_out();
 private:
     int frame_rate;
-    string url;
-    bool quit_flg;
+    int monitor;
+      string url;
+    volatile bool quit_flg;
     QTimer *tmr;
 };
 

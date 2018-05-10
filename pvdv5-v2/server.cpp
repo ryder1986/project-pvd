@@ -132,7 +132,7 @@ int Server::handle_client_request(string request,string &ret,void *addr)
             data_dst.set_value("return",Pvd::RETURN::INVALID_VALUE);
             break;
         }
-        if(camera_manager->modify_camera(idx,data_src.get_value("alg"),CameraManager::MODIFY_ALG)){
+        if(camera_manager->modify_camera(idx,data_src.get_value("channel"),CameraManager::MODIFY_ALG)){
             cfg.cams_cfg=camera_manager->config();
             save_cfg();
         }else{

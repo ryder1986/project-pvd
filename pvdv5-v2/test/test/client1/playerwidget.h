@@ -120,6 +120,33 @@ public:
     {
         //     delete p;
     }
+    void unpack_rst1(m_result &rst,QByteArray ba)
+    {
+        DataPacket pkt(string(ba.data()));
+        JsonValue data= pkt.get_value("rt_data");
+        DataPacket pkt_ch(data);
+        vector<JsonValue> jv=pkt_ch.array_value();
+        foreach (JsonValue v, jv) {
+            JsonValue result_v=DataPacket(v).get_value("result");
+            JsonValue result_rects=DataPacket(result_v).get_value("rects");
+            vector<  JsonValue >rcts_v=DataPacket(result_rects).array_value();
+
+
+            foreach (JsonValue v, rcts_v) {
+                DataPacket p(v);
+                int w= p.get_int("w");
+                int h= p.get_int("h");
+                int x= p.get_int("x");
+                int y= p.get_int("y");
+                rst.rects.push_back(Rect(x,y,w,h));
+            }
+
+
+            rst.width= DataPacket(result_v).get_int("width");
+            rst.height= DataPacket(result_v).get_int("height");
+        }
+
+    }
     void unpack_rst(m_result &rst,QByteArray ba)
     {
         //    rst.rects
@@ -181,7 +208,8 @@ public:
             QPen pen(brush1,10);
             test->setPen(pen);
 
-            unpack_rst(rst,data);
+            //unpack_rst(rst,data);
+            unpack_rst1(rst,data);
             alg_w=rst.width;
             alg_h=rst.height;
             if(rst.rects.size()){
@@ -271,17 +299,20 @@ public:
             data.clear();
         }
     }
-    void try_pick(QPoint point)
+    bool try_pick(QPoint point)
     {
+        bool ret=false;
         int i=0;
         if(pns_now.size()==channel_num*poly_num)
             for (i=0;i<pns_now.size();i++) {
                 if(abs(point.x()-pns_now[i].x())<10&&abs(point.y()-pns_now[i].y())<10){
                     prt(info,"%d slect",i+1);
                     picked=true;
+                    ret=true;
                     index=i;
                 }
             }
+        return ret;
     }
 
     bool try_move(QPoint point)
@@ -310,6 +341,11 @@ public:
         }
         return ret;
     }
+    int get_index()
+    {
+        return index;
+    }
+
     QPoint get_points()
     {
         int i=0;
@@ -480,18 +516,40 @@ private:
 
 
 #include <datamanager.h>
+#include <QMenu>
 class PlayerWidget : public QOpenGLWidget
 {
     Q_OBJECT
 
     DataManager *dma;
     int cam_index;
+    QAction *action_add_channel;
+    QMenu *menu;
 public:
-    PlayerWidget(QGroupBox *d)
+    PlayerWidget(QGroupBox *d):show_info(false)
     {
+        setContextMenuPolicy(Qt::CustomContextMenu);
+        connect(this,SIGNAL(customContextMenuRequested(QPoint)),this,SLOT(right_click(QPoint)));
 
+        menu=new QMenu(this);
+        action_add_channel=new QAction(this);
+        action_add_channel->setText("add channel");
+        menu->addAction(action_add_channel);
+        connect(action_add_channel,SIGNAL(triggered(bool)),this,SLOT(add_channel(bool)));
 
     }
+
+    ~PlayerWidget()
+    {
+        delete action_add_channel;
+        delete menu;
+        delete pt;
+    }
+    void set_realtime_data(QByteArray rst)
+    {
+        pt->set_data(rst);
+    }
+
     void set_data( DataManager *dm,int index)
     {
         cam_index=index;
@@ -522,10 +580,7 @@ public:
 
     }
 
-    ~PlayerWidget()
-    {
-        delete pt;
-    }
+
 
     void set_image(QImage img1)
 
@@ -561,7 +616,9 @@ protected:
 
             pt->paint_rect1(&painter,img.width(),img.height());
         }
-
+        if(show_info){
+            pt->paint(&painter);
+        }
         lock.unlock();
         //        qDebug()<<"paint";
 #else
@@ -604,6 +661,29 @@ protected:
     }
 
 public slots:
+    void add_channel(bool)
+    {
+        QList<QPoint> ps;
+        ps.append(QPoint(0,0));
+        ps.append(QPoint(0,0));
+        ps.append(QPoint(0,0));
+        ps.append(QPoint(0,0));
+        dma->add_channel(ps,cam_index);
+        emit data_changed();
+    }
+    void del_channel(bool)
+    {
+
+        dma->del_channel((pt->get_index()+1)/4,cam_index);
+        emit data_changed();
+    }
+    void right_click(QPoint p)
+    {
+        prt(info,"right clik at %d %d",p.x(),p.y());
+
+        menu->exec(mapToGlobal(p));
+    }
+
     //    void set_layout_data(QByteArray data)
     //    {
     //        //    lock.lock();
@@ -624,14 +704,35 @@ public slots:
     }
     void mousePressEvent(QMouseEvent *e)
     {
-        pt->try_pick(e->pos());
+
+        if(e->button()==Qt::MouseButton::RightButton){
+            QAction *action_del_channel;
+
+            if(pt->try_pick(e->pos())){
+                action_del_channel=new QAction(this);
+                action_del_channel->setText("del channel");
+                connect(action_del_channel,SIGNAL(triggered(bool)),this,SLOT(del_channel(bool)));
+                menu->addAction(action_del_channel);
+            }
+            prt(info,"right press");
+        }
+
+        // if(e->button()==Qt::MouseButton::LeftButton){
+        if(1){
+
+            prt(info,"left press");
+            (pt->try_pick(e->pos()));
+        }
+
+
     }
 
     void mouseReleaseEvent(QMouseEvent *e )
     {
         if(pt->try_put()){
-            emit data_changed();
+
             dma->set_points(pt->points(),cam_index);
+            emit data_changed();
 
         }
     }
@@ -642,6 +743,7 @@ public slots:
             l=pt->points();
         }
     }
+
 
 signals:
     void selected(PlayerWidget *w);

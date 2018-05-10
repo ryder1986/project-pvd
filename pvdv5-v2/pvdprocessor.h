@@ -81,9 +81,11 @@ public:
 
     }
 
+
     PvdC4Processor(JsonValue jv,int cid):VideoProcessor()
     {
         arg.no=cid;
+        channel_id=cid;
         enter_id_old=0;
         leave_id_old=0;
         enter_id_new=0;
@@ -182,6 +184,7 @@ public:
             pkt_rct.set_value("h",rct.height);
             ja.push_back(pkt_rct.value());
         }
+   //     cout<<r.rects.size()<<endl;
         pkt.set_array("rects",ja);
         alg_rst=pkt.data().data();
       //  printf("send [[[ %s\n  ]]]",alg_rst.data());
@@ -547,6 +550,6 @@ private:
 
 
 
-    int channel_id;
+
 };
 #endif // PVDPROCESSOR_H

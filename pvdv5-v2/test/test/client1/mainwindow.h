@@ -17,9 +17,11 @@ class PlayerBox:public PlayerWidget
 {
     Q_OBJECT
     int cam_index;
+
 public:
     PlayerBox(string url,DataManager *dm,int index):PlayerWidget(NULL)
     {
+
         cam_index=index;
         this->set_data(dm,index);
         connect(&tmr,SIGNAL(timeout()),this,SLOT(play_a_frame()));
@@ -60,27 +62,98 @@ private:
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
+    enum{
+        DISPLAY_NORMAL_MODE,
+        DISPLAY_MAX_MODE
+    };
+    bool running;
     DataManager dm;
     vector <PlayerBox *> players;
+    ProcessedDataReciver rcvr;
+    int mode;
+    int focus_index;
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
 public slots:
+    void picture_selected(PlayerWidget *w)
+    {
+
+        //   vector <PlayerBox *>::iterator ir=std::find(players.front(),players.end(),w);
+        int sz=players.size();
+        int i;
+        for( i=0;i<sz;i++){
+            if(players[i]==w)
+                break;
+        }
+        if(i<sz){
+            prt(info,"%d selected",i+1);
+        }
+        //  vector<PlayerBox*>::iterator it=find(players.front(),players.end(),w);
+        int pos=0;
+        for (pos=0;pos<sz;pos++)
+        {
+            if(players[pos]==w){
+                break;
+            }
+        }
+        focus_index=pos;
+
+        if(mode==DISPLAY_NORMAL_MODE){
+            foreach (PlayerWidget *w, players) {
+                if(players[i]!=w)
+                    w->hide();
+                else{
+                    clt.focus_camera(pos+1);
+                }
+            }
+
+            mode=DISPLAY_MAX_MODE;
+            PlayerWidget *w= players[focus_index];
+            w->set_show(true);
+        }else{
+            foreach (PlayerWidget *w, players) {
+                w->show();
+                //   clt.disfocus_camera();
+            }
+
+            for (pos=0;pos<sz;pos++)
+            {
+                clt.disfocus_camera(pos+1);
+                PlayerWidget *w= players[focus_index];
+                w->set_show(false);
+            }
+            mode=DISPLAY_NORMAL_MODE;
+        }
+
+    }
+
     void changed()
     {
         clt.set_config(dm.get().data());
+    }
+    void set_layout(QByteArray rst)
+    {
+        prt(info,"%s",rst.data());
+        if(running){
+            PlayerWidget *w= players[focus_index];
+
+            w->set_realtime_data(rst);
+        }
     }
 
     void open_config(bool ss,string cfg)
     {
         // ui->groupBox_picturebox->layout()->removeWidget(ui->widget_picture);
         ui->widget_picture->hide();
+        running=true;
         dm.set(cfg);
         vector <string> urls=dm.get_cams();
         int index=0;
         for(int i=0;i<players.size();i++){
-           ui->groupBox_picturebox->layout()->removeWidget(players[i]);
+            ui->groupBox_picturebox->layout()->removeWidget(players[i]);
         }
         players.clear();
         foreach (string url, urls) {
@@ -89,6 +162,7 @@ public slots:
             players.push_back(b);
             ui->groupBox_picturebox->layout()->addWidget(b);
             connect(b,SIGNAL(data_changed()),this,SLOT(changed()));
+            connect(b,SIGNAL(selected(PlayerWidget*)),this,SLOT(picture_selected(PlayerWidget*)));
 
             //   src.start();
         }
@@ -158,6 +232,8 @@ private slots:
     void on_pushButton_setconfig_clicked();
 
     void on_pushButton_addcam_clicked();
+
+    void on_pushButton_del_clicked();
 
 private:
     Ui::MainWindow *ui;

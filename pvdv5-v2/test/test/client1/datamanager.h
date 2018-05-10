@@ -73,6 +73,7 @@ public:
         cfg.time_machine_ip= pkt.get_string("time_machine_ip");
         vector <JsonValue>cameras=DataPacket(pkt.get_value("cameras")).array_value();
         int i=0;
+        cfg.cams.clear();
         foreach (JsonValue v, cameras) {
             cfg.cams.push_back( decode_camera(v));
         }
@@ -124,24 +125,78 @@ public:
         for(int i=0;i<p_cam->channels.size();i++)
         {    cha_t *p_c=&p_cam->channels[i];
             if(  p_c->selected_alg=="pvd_c4"){
-                   for(int j=0;j<4;j++){
-                       p_c->c4.detect_area[j].x=pns[j+4*i].x();
-                       p_c->c4.detect_area[j].y=pns[j+4*i].y();
-                    }
+                for(int j=0;j<4;j++){
+                    p_c->c4.detect_area[j].x=pns[j+4*i].x();
+                    p_c->c4.detect_area[j].y=pns[j+4*i].y();
+                }
 
             }
             if(p_c->selected_alg=="pvd_hog"){
                 for(int j=0;j<4;j++){
                     p_c->hog.detect_area[j].x=pns[j+4*i].x();
                     p_c->hog.detect_area[j].y=pns[j+4*i].y();
-                 }
+                }
 
 
             }
-         }
+        }
+
+    }
+    void add_channel(  QList <QPoint>  pns,int cam_index)
+    {
+
+        cam_t *p_cam= &cfg.cams[cam_index-1];
+//        int i=0;
+
+       // for(int i=0;i<p_cam->channels.size();i++)
+      //  {
+
+            pnt_t  point_tmp;
+            cha_t channel;
+            channel.selected_alg.clear();
+            channel.selected_alg.append("pvd_c4");
+            for(int j=0;j<4;j++){
+
+                point_tmp.x=pns[j].x();
+                point_tmp.y=pns[j].y();
+                 channel.c4.detect_area.push_back(point_tmp);
+
+//                p_c.c4.detect_area[j].x=pns[j].x();
+//                p_c.c4.detect_area[j].y=pns[j].y();
+            }
+            channel.c4.step=9;
+            channel.c4.ratio="0.7";
+            p_cam->channels.push_back(channel);
+
+//            if( p_c->selected_alg=="pvd_c4"){
+//                for(int j=0;j<4;j++){
+//                    p_c->c4.detect_area[j].x=pns[j+4*i].x();
+//                    p_c->c4.detect_area[j].y=pns[j+4*i].y();
+//                }
+
+//            }
+//            if(p_c->selected_alg=="pvd_hog"){
+//                for(int j=0;j<4;j++){
+//                    p_c->hog.detect_area[j].x=pns[j+4*i].x();
+//                    p_c->hog.detect_area[j].y=pns[j+4*i].y();
+//                }
+
+
+//            }
+     //   }
 
     }
 
+      void del_channel( int cha,int cam_index)
+      {
+                  cam_t *p_cam= &cfg.cams[cam_index-1];
+                  vector<cha_t>::iterator it;
+
+         //        it=find(p_cam->channelscha-1);
+          //         it=find(p_cam->channels.front(),p_cam->channels.end(),p_cam->channels[cha-1]);
+              p_cam->channels.erase(it+cha-1);
+
+      }
 private:
     cam_t  decode_camera(JsonValue data)
     {

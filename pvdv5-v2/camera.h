@@ -112,6 +112,7 @@ private:
             processors.clear();
         }
         src=NULL;
+        prt(info,"delete done");
     }
 
     virtual JsonValue cfg_2_jv()
