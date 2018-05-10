@@ -1,2 +1,2 @@
 #!/bin/bash
-nohup /bin/bash /home/zen/wardens start 2 &
+nohup /bin/bash /home/zen/res/wardens start 2 &
