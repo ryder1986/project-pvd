@@ -36,7 +36,7 @@ PROG1_CMD=./zenith
 
 SWITCH2=1
 PROG2=ipsearch
-PROG2_WDIR=/home/zen/
+PROG2_WDIR=/home/zen/res/
 PROG2_CMD=./ipsearch
 
 SWITCH3=0
