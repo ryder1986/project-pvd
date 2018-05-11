@@ -69,7 +69,7 @@ void MainWindow::on_pushButton_addcam_clicked()
 {
    QString url= ui->lineEdit_addcam->text();
 
-   clt.add_camera(url,dm.get_cams().size());
+   clt.add_camera(url,dm.get_cams().size()+1);
 }
 
 

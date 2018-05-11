@@ -24,6 +24,8 @@ public:
     VideoCapture vcap;
     QList <Mat> frame_list;
     int frame_wait_time;
+
+    mutex lock;
     //   explicit VideoSource(QJsonObject config);
     VideoSource(string path);
     ~VideoSource();
@@ -34,13 +36,19 @@ public:
 
     bool get_frame(Mat &frame)
     {
+        int ret=false;
+        lock.lock();
         if(frame_list.size()>1){
             frame=frame_list.first();
             frame_list.pop_front();
-            return true;
+
+            ret=true;
         }else{
-            return false;
+              ret=false;
         }
+           lock.unlock();
+
+           return ret;
     }
 
     bool get_size(int &w,int &h)
@@ -62,7 +70,8 @@ private:
     int frame_rate;
     int monitor;
       string url;
-    volatile bool quit_flg;
+      volatile bool quit_flg;
+
     QTimer *tmr;
 };
 

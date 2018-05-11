@@ -12,12 +12,25 @@ VideoSource::VideoSource(string path)
 }
 VideoSource::~VideoSource()
 {
-    quit_flg=true;
-   // this->exit(0);
-    prt(info,"quiting  %s", url.data());
-    this->wait();// TODO, we have risk to stuck here.
-    prt(info,"quit %s done", url.data());
     delete tmr;
+    quit_flg=true;
+    // this->exit(0);
+    prt(info,"quiting  %s", url.data());
+    //   this->wait();// TODO, we have risk to stuck here.
+    //  this->thread()->quit();
+    //   this->terminate();
+    if(!this->wait(1000))
+    {
+        prt(info,"terminating ######!!!!!!#########################end fail   %s", url.data());
+
+        this->terminate();
+        prt(info,"############################################end fail   %s", url.data());
+        this->wait();
+        prt(info,"end ok   %s", url.data());
+
+    }
+    //  prt(info,"quit %s done", url.data());
+
 
 }
 void VideoSource::run()
@@ -38,9 +51,9 @@ void VideoSource::run()
     monitor=0;
     int flag_retry=0;
     while(!quit_flg){
-       // if((!(monitor++%30))){
-         //    prt(info,"flg %d",quit_flg);
-       // }
+        // if((!(monitor++%30))){
+        //    prt(info,"flg %d",quit_flg);
+        // }
         // prt(info,"runing thread %s",url.toStdString().data());
         if( vcap.isOpened()){
             flag_retry=0;
@@ -56,10 +69,11 @@ void VideoSource::run()
                 prt(info,"restarting %s      ", url.data());
             }else{
                 frame_rate++;
-
+                lock.lock();
                 if(frame_list.size()<3){
                     frame_list.push_back(mat_rst);
                 }
+                lock.unlock();
                 if(frame_wait_time)
                     this_thread::sleep_for(chrono::milliseconds( frame_wait_time));
             }
