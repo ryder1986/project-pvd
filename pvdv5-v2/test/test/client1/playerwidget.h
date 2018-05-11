@@ -669,13 +669,15 @@ public slots:
         ps.append(QPoint(0,0));
         ps.append(QPoint(0,0));
         dma->add_channel(ps,cam_index);
-        emit data_changed();
+  //      emit data_changed();
+        emit alg_changed(cam_index);
     }
     void del_channel(bool)
     {
 
         dma->del_channel((pt->get_index()+1)/4,cam_index);
-        emit data_changed();
+      //  emit data_changed();
+        emit alg_changed(cam_index);
     }
     void right_click(QPoint p)
     {
@@ -732,7 +734,8 @@ public slots:
         if(pt->try_put()){
 
             dma->set_points(pt->points(),cam_index);
-            emit data_changed();
+            //emit data_changed();
+            emit alg_changed(cam_index);
 
         }
     }
@@ -748,6 +751,7 @@ public slots:
 signals:
     void selected(PlayerWidget *w);
     void data_changed();
+    void alg_changed(int index);
 private:
     QImage img;
     QString title;

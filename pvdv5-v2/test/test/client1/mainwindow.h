@@ -130,7 +130,7 @@ public slots:
 
     }
 
-    void changed()
+    void config_changed()
     {
         clt.set_config(dm.get().data());
     }
@@ -161,41 +161,19 @@ public slots:
             PlayerBox *b=new PlayerBox(url,&dm,index);
             players.push_back(b);
             ui->groupBox_picturebox->layout()->addWidget(b);
-            connect(b,SIGNAL(data_changed()),this,SLOT(changed()));
+            connect(b,SIGNAL(data_changed()),this,SLOT(config_changed()));
+            connect(b,SIGNAL(alg_changed(int)),this,SLOT(modify_alg(int)));
             connect(b,SIGNAL(selected(PlayerWidget*)),this,SLOT(picture_selected(PlayerWidget*)));
-
-            //   src.start();
         }
-
-        //    dm.set(dm.get());
     }
 
     void timeup()
     {
-        Mat rgb_frame;
-        Mat bgr_frame;
-        QImage img1;
-        //        bool ret=src->get_frame(bgr_frame);
-        //        if(ret){
-        //            cvtColor(bgr_frame,rgb_frame,CV_BGR2RGB);
-        //            img1=QImage((const uchar*)(rgb_frame.data),
-        //                        rgb_frame.cols,rgb_frame.rows,
-        //                        QImage::Format_RGB888);
-        //            PlayerWidget *wgt=ui->widget_picture;
-        //            if(wgt){
-        //                img1.bits();
-        //                wgt->set_image(img1);
-        //                wgt->set_title(src->get_url().data());
-        //                if(frame_rate%3==0)
-        //                    wgt->update();
-        //                frame_rate++;
-        //            }
-        //        }
+
     }
 
     void mouseMoveEvent(QMouseEvent *e)
     {
-        //  qDebug()<<"move";
         if(picked){
             this->ui->groupBox_textbox->setFixedWidth(e->pos().x()-ui->groupBox_textbox->pos().x());
         }
@@ -203,7 +181,6 @@ public slots:
     void mousePressEvent(QMouseEvent *e)
     {
         picked=true;
-        //   qDebug()<<"presss";
     }
     void mouseReleaseEvent(QMouseEvent *e)
     {
@@ -211,6 +188,11 @@ public slots:
     }
 
 private slots:
+    void modify_alg(int index)
+    {
+        clt.set_alg( dm.get_alg(index).data(),index);
+    }
+
     void on_pushButton_search_clicked();
     void ip_found(QString ip)
     {
@@ -219,6 +201,10 @@ private slots:
     void server_msg(QByteArray ba)
     {
         ui->textEdit_recv->setPlainText(ba.data());
+    }
+    void sended(QByteArray ba)
+    {
+        ui->textEdit_send->setPlainText(ba.data());
     }
 
     void on_comboBox_activated(const QString &arg1);

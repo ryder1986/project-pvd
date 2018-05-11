@@ -3,10 +3,7 @@
 #include <QObject>
 #include <QtNetwork>
 #include <tool.h>
-
 #include "pvd.h"
-
-
 class Client : public QObject
 {
     QByteArray tmp_msg;
@@ -49,6 +46,20 @@ public:
         QJsonObject obj;
         obj["type"]=Pvd::SET_CONFIG;
         obj["config"]=doc_config.object();
+        QJsonDocument doc(obj);
+        bool ret= send(doc.toJson());//talk to server
+        if(!ret){
+            prt(info,"fail send");
+        }
+    }
+
+    void set_alg(QByteArray cfg , int index)
+    {
+        QJsonDocument doc_config=QJsonDocument::fromJson(cfg);
+        QJsonObject obj;
+        obj["type"]=Pvd::MOD_CAMERA_ALG;
+        obj["channel"]=doc_config.array();
+        obj["cam_index"]=index;
         QJsonDocument doc(obj);
         bool ret= send(doc.toJson());//talk to server
         if(!ret){
@@ -273,9 +284,11 @@ signals:
     void need_update_config();
     void connect_done();
     void get_ret(QByteArray);
+    void send_done(QByteArray);
 private:
     bool send(const QByteArray ba)
     {
+        emit send_done(ba);
         bool ret=false;
         int write_bytes=0;
         int len=ba.length();

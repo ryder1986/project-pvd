@@ -190,7 +190,7 @@ int Server::handle_client_request(string request,string &ret,void *addr)
 
     case Pvd::REBOOT:
     {
-
+        system("reboot");
         break;
     }
 

@@ -14,6 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&tmr,SIGNAL(timeout()),this,SLOT(timeup()));
     connect(&searcher,SIGNAL(find_ip(QString)),this,SLOT(ip_found(QString)));
     connect(&clt,SIGNAL(get_ret(QByteArray)),this,SLOT(server_msg(QByteArray)));
+    connect(&clt,SIGNAL(send_done(QByteArray)),this,SLOT(sended(QByteArray)));
     connect(&clt,SIGNAL(signal_get_config_done(bool,string)),this,
             SLOT(open_config(bool,string)));
 
