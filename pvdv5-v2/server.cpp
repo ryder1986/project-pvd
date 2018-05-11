@@ -198,6 +198,8 @@ int Server::handle_client_request(string request,string &ret,void *addr)
     {
         cfg.dev_id=data_src.get_int("deviceID");
         cfg.server_name=data_src.get_string("device_name");
+        cfg.sig_ip=data_src.get_string("signal_machine_ip");
+        cfg.sig_port=data_src.get_int("signal_machine_port");
         save_cfg();
         break;
     }
