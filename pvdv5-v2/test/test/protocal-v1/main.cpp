@@ -8,6 +8,8 @@ using namespace std;
 
 #define DATA_START 0x7e//1
 #define ID 0x01//2
+//#define ID 0x01//2
+//#define ID 0x7d//2
 #define VER 0x01//3
 #define OP 0x61//4
 #define CLASS 0x1f//5
@@ -48,20 +50,38 @@ void encode_prot( vector <uint8_t> &bs)
 
     if(bs.size()>1){
 
-        for(int i=1;i<bs.size()-1;i++){
-            if(bs[i]==0x7E)
+        vector <uint8_t>::iterator it=bs.begin()+1;
+        while(it!=bs.end()-1){
+            if(*it==0x7E)
             {
-                bs[i]=0x7D;
-                bs.insert(i,1,0x5E);
-                i++;
-            }
-            if(bs[i]==0x7D)
+               *it=0x7D;
+                bs.insert(it+1,1,(uint8_t)0x5E);
+
+            }else
+            if(*it==0x7D)
             {
-                bs[i]=0x7D;
-                bs.insert(i,1,0x5D);
-                i++;
+              *it=0x7D;
+
+                bs.insert(it+1,1,(uint8_t)0x5D);
+
             }
+            it++;
         }
+
+//        for(int i=1;i<bs.size()-1;i++){
+//            if(bs[i]==0x7E)
+//            {
+//                bs[i]=0x7D;
+//                bs.insert(i,1,(uint8_t)0x5E);
+//                i++;
+//            }
+//            if(bs[i]==0x7D)
+//            {
+//                bs[i]=0x7D;
+//                bs.insert(i,1,(uint8_t)0x5D);
+//                i++;
+//            }
+//        }
     }
 
 
