@@ -19,17 +19,37 @@ public:
     {
         udp_skt->writeDatagram(datagram.data(), datagram.size(),
                                addr, Pvd::get_instance().client_data_port);
+        if(state_tick++>10){
+
+          //  qDebug()<<addr.toString();
+        //     prt(info,"sending to %s :%d",addr.toString().toStdString().data(),Pvd::get_instance().client_data_port);
+            state_tick=0;
+        }
     }
 private:
     ProcessedDataSender(){
         udp_skt = new QUdpSocket();
+        timer=new QTimer();
+        connect(timer,SIGNAL(timeout()),this,SLOT(check_state()));
+        state_tick=0;
+        timer->start(1);
     }
     ~ProcessedDataSender()
     {
+        delete timer;
         delete udp_skt;
     }
 
 public  slots:
+    void check_state()
+    {
+    //    prt(info,"checking");
+     //   state_tick++;
+        //        if(state_tick%10){
+
+        //        }
+    }
+
     void check_client()
     {
         QByteArray client_msg;
@@ -70,6 +90,7 @@ public  slots:
 private:
     QTimer *timer;
     QUdpSocket *udp_skt;
+    int state_tick;
 };
 
 

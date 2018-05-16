@@ -18,9 +18,10 @@ public:
     VideoProcessor()
     {
     }
-    virtual  void prepare(QJsonValue v)
+    virtual  void set_config(JsonValue v)
     {
     }
+
     int get_id()
     {
         return channel_id;

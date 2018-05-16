@@ -110,6 +110,7 @@ public:
         index=-1;
         data.clear();
         picked=false;
+        together=false;
 
         poly_num=4;//rectangles
         channel_num=pns.size()/poly_num;
@@ -299,6 +300,43 @@ public:
             data.clear();
         }
     }
+ bool on_1_line1(QPointF point,QPointF point1,QPointF point2)
+{
+
+     if(abs((((point.x()-point1.x())*(point.y()-point2.y()))-((point.y()-point1.y())*(point.x()-point2.x()))))<500){
+         qDebug()<<"1";
+            return true;
+     }else{
+         return false;
+     }
+
+ }
+    bool on_line(QPoint point)
+    {
+        bool ret=0;
+        int i=0;
+        for(;i<pns_now.size()/4;i++)
+        {
+
+
+            ret=on_1_line1(point,pns_now[i*4],pns_now[i*4+1]);
+            if(ret)
+                break;
+             ret= on_1_line1(point,pns_now[i*4+1],pns_now[i*4+2]);
+            if(ret)
+                break;
+             ret= on_1_line1(point,pns_now[i*4+2],pns_now[i*4+3]);
+            if(ret)
+                break;
+            ret=  on_1_line1(point,pns_now[i*4+3],pns_now[i*4]);
+            if(ret)
+                break;
+        }
+        rect_index=i+1;
+        return ret;
+    }
+        QPoint pnt_ori;
+        int rect_index;
     bool try_pick(QPoint point)
     {
         bool ret=false;
@@ -311,16 +349,46 @@ public:
                     ret=true;
                     index=i;
                 }
+
             }
+        if(pns_now.size()==channel_num*poly_num)
+//            for (i=0;i<pns_now.size();i++) {
+//                if(abs(point.x()-pns_now[i].x())<10&&abs(point.y()-pns_now[i].y())<10){
+//                    prt(info,"%d slect",i+1);
+//                    picked=true;
+//                    ret=true;
+//                    index=i;
+//                }
+
+//            }
+         if(picked==false&&on_line(point)){
+            together=true;
+
+            pnt_ori=point;
+         }
         return ret;
     }
 
     bool try_move(QPoint point)
     {
         bool ret=false;
-        if(picked){
+        if(picked&&!together){
             ret=true;
             pns_now[index]=point;
+           // set_points();
+            set_point(index+1);
+        }
+        if(together){
+            qDebug()<<"moveing";
+            ret=true;
+           // pns_now[index]=point;
+            for(int i=0;i<pns_now.size();i++)
+            {
+                pns_now[i]=QPoint(pns_now[i].x()+point.x()-pnt_ori.x(),pns_now[i].y()+point.y()-pnt_ori.y());
+
+            }
+                        pnt_ori=point;
+           // set_points();
             set_points();
         }
         return ret;
@@ -330,14 +398,29 @@ public:
         return pns;
     }
 
-    bool try_put()
+    bool try_put(QPoint point)
     {
+//        if(together){
+//            qDebug()<<"moveing";
+
+//           // pns_now[index]=point;
+//            for(int i=0;i<pns_now.size();i++)
+//            {
+//                pns_now[i]=QPoint(pns_now[i].x()+point.x()-pnt_ori.x(),pns_now[i].y()+point.y()-pnt_ori.y());
+//            }
+//           // set_points();
+//            set_points();
+//        }
+
         bool ret=false;
         if(picked){
-            set_points();
+           // set_points();
             picked=false;
             index=-1;
             ret=true;
+        }
+        if(together){
+            together=false;
         }
         return ret;
     }
@@ -367,7 +450,18 @@ public:
             //   pns[i]=QPoint(pns_now[i].x()*640/window_w,pns_now[i].y()*480/window_h);
         }
     }
-
+    void set_point(int index)
+    {
+        if(pns_now.size()>index&&index>0)
+         pns[index-1]=QPoint(pns_now[index-1].x()*picture_w/window_w,pns_now[index-1].y()*picture_h/window_h);
+//        int i=0;
+//        if(pns_now.size()>0){
+//            for(i=0;i<pns_now.size();i++)
+//                pns[i]=QPoint(pns_now[i].x()*picture_w/window_w,pns_now[i].y()*picture_h/window_h);
+//            //    pns[i]=QPoint(pns_now[i].x()*wi_ori/window_w,pns_now[i].y()*he_ori/window_h);
+//            //   pns[i]=QPoint(pns_now[i].x()*640/window_w,pns_now[i].y()*480/window_h);
+//        }
+    }
 
     void paint_rect1(QPainter *pt,int w,int h)
     {
@@ -413,7 +507,10 @@ public:
                     }
 
                 }
+                if(!together)
                 pt->setPen( QPen (QBrush (QColor(0,0,222)),5));
+                else
+                     pt->setPen( QPen (QBrush (QColor(0,222,0)),5));
                 pt->drawPolygon((QPointF *)(p+j*poly_num),poly_num);
             }
 
@@ -464,7 +561,7 @@ public:
 
                 p[i]=pns_now[i];
                 pt->drawEllipse(p[i],10,10);
-                if(picked&&i==index){
+                if((picked&&i==index)||together){
 
                     pt->save();
                     pt->setPen( QPen (QBrush (QColor(222,0,0)),5));
@@ -482,7 +579,10 @@ public:
             //            p[3].setX(p[3].x()*w/wi); p[3].setY(p[3].y()*h/he);
 
             //  pt->drawPolyline((QPointF *)p,4);
-            pt->setPen( QPen (QBrush (QColor(0,0,222)),5));
+//            if(together)
+//            pt->setPen( QPen (QBrush (QColor(0,0,222)),5));
+//            else
+                     pt->setPen( QPen (QBrush (QColor(0,222,0)),5));
             pt->drawPolygon((QPointF *)p,4);
         }else{
             prt(info,"ps err");
@@ -500,6 +600,7 @@ private:
     QList <QPoint> pns;
     QList <QPoint> pns_now;
     bool picked;
+    bool together;
     int index;
     int picture_w;
     int picture_h;
@@ -675,7 +776,7 @@ public slots:
     void del_channel(bool)
     {
 
-        dma->del_channel((pt->get_index()+1)/4,cam_index);
+        dma->del_channel((pt->get_index()+1)/4+1,cam_index);
       //  emit data_changed();
         emit alg_changed(cam_index);
     }
@@ -731,7 +832,7 @@ public slots:
 
     void mouseReleaseEvent(QMouseEvent *e )
     {
-        if(pt->try_put()){
+        if(pt->try_put(e->pos())){
 
             dma->set_points(pt->points(),cam_index);
             //emit data_changed();

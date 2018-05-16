@@ -136,7 +136,7 @@ public slots:
     }
     void set_layout(QByteArray rst)
     {
-        prt(info,"%s",rst.data());
+//        prt(info,"%s",rst.data());
         if(running){
             PlayerWidget *w= players[focus_index];
 

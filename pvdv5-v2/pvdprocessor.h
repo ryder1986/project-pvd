@@ -44,10 +44,10 @@ class PvdC4Processor : public VideoProcessor
     }m_result;
 
 public:
-//    void set_id(int id)
-//    {
-//        channel_i=id;
-//    }
+    //    void set_id(int id)
+    //    {
+    //        channel_i=id;
+    //    }
 
     //  PvdC4Processor():scanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,0.8),VideoProcessor()
     PvdC4Processor(JsonValue jv):VideoProcessor()
@@ -76,7 +76,7 @@ public:
         loaded=false;
         set_config(jv);
         p_scanner=new DetectionScanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,arg.scale_ratio);
-//        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
+        //        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
         tracker=new CTracker(0.2f, 0.1f, 60.0f, Pvd::get_instance().kalman_lost_frame_threhold, Pvd::get_instance().kalman_trace_len);
 
     }
@@ -84,6 +84,9 @@ public:
 
     PvdC4Processor(JsonValue jv,int cid):VideoProcessor()
     {
+        empty_frame_count=0;
+        exist_frame_count=0;
+
         arg.no=cid;
         channel_id=cid;
         enter_id_old=0;
@@ -109,7 +112,7 @@ public:
         loaded=false;
         set_config(jv);
         p_scanner=new DetectionScanner(HUMAN_height,HUMAN_width,HUMAN_xdiv,HUMAN_ydiv,256,arg.scale_ratio);
-//        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
+        //        tracker=new CTracker(0.2f, 0.1f, 60.0f, 5, 100);
         tracker=new CTracker(0.2f, 0.1f, 60.0f, Pvd::get_instance().kalman_lost_frame_threhold, Pvd::get_instance().kalman_trace_len);
 
     }
@@ -152,7 +155,7 @@ public:
         }else
             ret=false;
         if(r.rects.size()>0){
-       //     r.count=r.rects.size();
+            //     r.count=r.rects.size();
             r.exist=true;
         }
         if(busy)
@@ -173,7 +176,7 @@ public:
         pkt.set_int("channel_id",arg.no);
 
         if(busy){
-          //  cout<<r.duration<<endl;
+            //  cout<<r.duration<<endl;
         }
         vector<JsonValue> ja;
         foreach (Rect rct,r.rects) {
@@ -184,10 +187,10 @@ public:
             pkt_rct.set_value("h",rct.height);
             ja.push_back(pkt_rct.value());
         }
-   //     cout<<r.rects.size()<<endl;
+        //     cout<<r.rects.size()<<endl;
         pkt.set_array("rects",ja);
         alg_rst=pkt.data().data();
-      //  printf("send [[[ %s\n  ]]]",alg_rst.data());
+        //  printf("send [[[ %s\n  ]]]",alg_rst.data());
         return ret;
     }
 
@@ -442,13 +445,23 @@ private:
         //       std::cout << "new:"<<enter_id_new<<"     old:"<<enter_id_old<<endl ;
         enter_count=enter_id_new-enter_id_old;
         leave_count=leave_id_new-leave_id_old;
+
+#if 1  //wang an guo request
+        if(enter_count<0){
+            enter_count=0;
+        }
+        if(leave_count<0){
+            leave_count=0;
+        }
+#endif
+
         count=result_rects.size();
 
         //record state change, TODO: try to make this more senseable
 
-        if(enter_count&&busy==false)
+        if(enter_count&&busy==false&&exist_frame_count>10)
             free2busy=true;
-        if(enter_flow<=leave_flow&&busy)//&&busy_count==0  add this condition
+        if(enter_flow<=leave_flow&&busy&&empty_frame_count>10)//&&busy_count==0  add this condition
             busy2free=true;
 
         //calculate total flow
@@ -458,7 +471,7 @@ private:
         if(free2busy){
             busy_start_time=get_time_point_ms();
             free2busy=false;
-         //   cout <<"--------------->start busy"<<endl;
+            //   cout <<"--------------->start busy"<<endl;
             busy=true;
 
         }
@@ -468,6 +481,16 @@ private:
             enter_flow+=enter_count;
             leave_flow+=leave_count;
             count_real=enter_flow-leave_flow;
+#if 1  //wang an guo request
+            if(enter_flow<=leave_flow){
+                if(enter_count){
+                    count_real=1;
+                }else{
+                    count_real=0;
+                }
+            }
+#endif
+
             busy_time=get_time_point_ms()-busy_start_time;
         }else{
             enter_flow=0;
@@ -480,7 +503,7 @@ private:
             //    busy_time=get_time_point_ms()-busy_start_time;
             busy2free=false;
             busy=false;
-         //   cout <<"------------------->end busy, passed number:"<<leave_flow<<"time"<<busy_time/1000<<endl;
+            //   cout <<"------------------->end busy, passed number:"<<leave_flow<<"time"<<busy_time/1000<<endl;
 
         }
 
@@ -507,15 +530,24 @@ private:
 
         if(enter_count)
         {
-      //      cout <<"enter :"<< enter_count<<endl;
-       //     cout <<"flow :"<< enter_flow<<endl;
+            //      cout <<"enter :"<< enter_count<<endl;
+            //     cout <<"flow :"<< enter_flow<<endl;
 
         }
         if(leave_count)
         {
             //cout <<"leave :"<< leave_count<<endl;
-           // cout <<"flow :"<< leave_flow<<endl;
+            // cout <<"flow :"<< leave_flow<<endl;
         }
+#if 1 //wang an guo request
+        if(result_rects.size()){
+            exist_frame_count++;
+            empty_frame_count=0;
+        }else{
+            exist_frame_count=0;
+            empty_frame_count++;
+        }
+#endif
         return ret;
 
     }
@@ -538,7 +570,7 @@ private:
     int count;
     int count_old;
     int count_real;
-       int enter_flow;
+    int enter_flow;
     int leave_flow;
 
     int flow;
@@ -548,7 +580,8 @@ private:
     int busy_time;
     int busy_start_time;
 
-
+    int empty_frame_count;
+    int exist_frame_count;
 
 
 };

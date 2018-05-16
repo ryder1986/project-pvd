@@ -2,7 +2,7 @@
 
 VideoSource::VideoSource(string path)
 {
-    frame_rate=0;
+   // frame_rate=0;
     url=path;
     quit_flg=false;
     tmr=new QTimer();
@@ -68,7 +68,7 @@ void VideoSource::run()
                 continue;
                 prt(info,"restarting %s      ", url.data());
             }else{
-                frame_rate++;
+            //    frame_rate++;
                 lock.lock();
                 if(frame_list.size()<3){
                     frame_list.push_back(mat_rst);
@@ -94,5 +94,5 @@ void VideoSource::run()
 void VideoSource::handle_time_out()
 {
     //    prt(info,"%s src rate %d",url.toStdString().data(),frame_rate);
-    frame_rate=0;
+  //  frame_rate=0;
 }

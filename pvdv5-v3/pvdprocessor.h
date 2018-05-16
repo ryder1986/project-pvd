@@ -339,7 +339,8 @@ private:
         //upper_bounds.push_back(117);	//353
 
         upper_bounds.push_back(20);	//20   small model ,like 3M
-        //      upper_bounds.push_back(50);	//353
+        //upper_bounds.push_back(256);	//20   small model ,like 3M
+              //      upper_bounds.push_back(50);	//353
         //         // upper_bounds.push_back(353);	//353
         // filenames.push_back("combined2.txt.model");
         filenames.push_back(Pvd::get_instance().alg_c4_file2);
@@ -396,7 +397,8 @@ private:
 
         original.Load( detect_region );
         std::vector<CRect> results;
-        p_scanner->FastScan(original, results, step_size);
+      //  p_scanner->FastScan(original, results, step_size);
+        p_scanner->FastScan(original, results, arg.scan_step);
 
         if(rect_organization)
         {

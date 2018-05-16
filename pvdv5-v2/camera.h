@@ -80,7 +80,7 @@ private:
             DataPacket pkt(v);
             string str=pkt.get_string("selected_alg");
             int channel_id=pkt.get_int("channel_id");
-              if(str=="pvd_c4"){
+            if(str=="pvd_c4"){
                 processors.push_back(new PvdC4Processor(pkt.get_value(str),channel_id));
             }else if(str=="pvd_hog"){
                 processors.push_back(new PvdHogProcessor(pkt.get_value(str),channel_id));
@@ -126,8 +126,7 @@ private:
         pkt.set_string("camera_ip",cam_cfg.camera_ip);
         pkt.set_int("camera_port",cam_cfg.camera_port);
 
-        DataPacket
-        pkt_alg(cam_cfg.chs);
+        DataPacket pkt_alg(cam_cfg.chs);
         pkt.set_value("channel",pkt_alg.value());
 
         return pkt.value();
@@ -150,9 +149,22 @@ private:
 
     void send_out(string ba)
     {
+        bool send_flag=false;
+        if(send_check_tick++>50){
+            send_flag=true;
+            send_check_tick=0;
+
+        }
+
         ProcessedDataSender *s=ProcessedDataSender::get_instance();
+        if(send_flag){
+          //  prt(info,"sending state...");
+        }
         foreach (QString ip, ip_list) {
             s->send(ba.data(),QHostAddress(ip));
+            if(send_flag){
+            //    prt(info,"send to %s, size(%d)",ip.toStdString().data(),ba.size());
+            }
         }
     }
 
@@ -175,6 +187,8 @@ private:
     Config_t cam_cfg;
     bool quit;
     mutex mtx;
+    int send_check_tick;
+
 };
 
 #endif // CAMERA_H

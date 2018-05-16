@@ -21,8 +21,20 @@ bool Camera::modify_alg(JsonValue jv)
 //    }
     cam_cfg.chs.clear();
     cam_cfg.chs=chs;
+    vector<JsonValue>channels=DataPacket(chs).array_value();
+    printf("%s,\n",DataPacket(chs).data().data());
+    if(channels.size()==processors.size()){
+        for(int i=0;i<channels.size();i++){
+            processors[i]->set_config(channels[i]);
+        }
+    }else{
+        restart_processor();
+    }
 
-    restart_processor();
+    //restart_processor();
+//    foreach (VideoProcessor *p, processors) {
+//        p->set_config();
+//    }
     return true;
 }
 

@@ -2,6 +2,7 @@
 Camera::Camera(JsonValue jv)
 {
     frame_rate=0;
+    send_check_tick=0;
     quit=false;
     jv_2_cfg(jv);
     start_cam();
