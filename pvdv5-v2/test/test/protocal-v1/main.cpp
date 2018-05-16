@@ -88,6 +88,76 @@ void encode_prot( vector <uint8_t> &bs)
     //  cout<<hex<<c<<endl;
 }
 
+typedef struct cdata_type{
+    uint8_t no;
+    uint8_t exist;
+    uint8_t percent;//zhan you lv
+    uint8_t busy_state;// 1-5 , judge by percent
+    uint8_t valid;
+}cdata_t;
+
+typedef struct data_type{
+    uint8_t direction;
+    uint8_t channel_count;
+    vector <cdata_t> channels;
+
+}data_t;
+
+vector <uint8_t>  process_protocal(data_t data )
+{
+    vector <uint8_t> bs;
+    bs.push_back(DATA_START);
+    bs.push_back(ID);
+    bs.push_back(VER);
+    bs.push_back(OP);
+    bs.push_back(CLASS);
+    //data
+    int num=2;
+    bs.push_back(0x01);//direction
+    bs.push_back(num);//channel total count
+    for(int i=0;i<num;i++){
+        bs.push_back(17);//area id
+        bs.push_back(1);//exist
+        bs.push_back(30);//percent
+        bs.push_back(2);//busy
+        bs.push_back(1);//valid
+    }
+    uint8_t check=0;
+
+    if(bs.size()>1){
+        check=bs[0];
+        for(int i=1;i<bs.size();i++){
+            check^=bs[i];
+        }
+    }
+    bs.push_back(check);
+    bs.push_back(DATA_END);
+
+
+    if(bs.size()>1){
+
+        vector <uint8_t>::iterator it=bs.begin()+1;
+        while(it!=bs.end()-1){
+            if(*it==0x7E)
+            {
+               *it=0x7D;
+                bs.insert(it+1,1,(uint8_t)0x5E);
+
+            }else
+            if(*it==0x7D)
+            {
+              *it=0x7D;
+
+                bs.insert(it+1,1,(uint8_t)0x5D);
+
+            }
+            it++;
+        }
+    }
+    return bs;
+}
+
+
 int main()
 {
     vector <uint8_t> bs;
