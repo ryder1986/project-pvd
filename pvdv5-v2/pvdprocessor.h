@@ -512,7 +512,7 @@ private:
         double end_time = cv::getTickCount();
         double spend_time;
         spend_time = 1000 * (fabs(end_time - start_time) / cv::getTickFrequency());
-        //      std::cout << "time : " << spend_time << " ms" << std::endl;
+             std::cout << "time : " << spend_time << " ms" << std::endl;
 
         if(result_rects.size()>0)
         {

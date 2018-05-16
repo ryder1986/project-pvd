@@ -1,7 +1,7 @@
 #include "camera.h"
 Camera::Camera(JsonValue jv)
 {
-    frame_rate=0;
+  //  frame_rate=0;
     send_check_tick=0;
     quit=false;
     jv_2_cfg(jv);
@@ -69,7 +69,7 @@ void Camera::run()
         //   prt(info,"runing %s",cam_cfg.url.toStdString().data());
         mtx.lock();
         if(src->get_frame(frame)&&frame.cols>0&&frame.rows>0){
-            frame_rate++;
+          //  frame_rate++;
             // bool ret=process(frame,rst);
 #if 0
             foreach (VideoProcessor *processor, processors) {

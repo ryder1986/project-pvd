@@ -174,11 +174,11 @@ signals:
 public slots:
     inline void handle_time_up()
     {
-        frame_rate=0;
+  //      frame_rate=0;
     }
 private:
     QList <QString> ip_list;
-    int frame_rate;
+//    int frame_rate;
     int threadid;
     QTimer *tmr;
     VideoSource *src;
