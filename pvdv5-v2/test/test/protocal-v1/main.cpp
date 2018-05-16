@@ -25,8 +25,8 @@ void encode_prot( vector <uint8_t> &bs)
     bs.push_back(CLASS);
     //data
     int num=2;
-    bs.push_back(0x01);
-    bs.push_back(num);
+    bs.push_back(0x01);//direction
+    bs.push_back(num);//channel total count
     for(int i=0;i<num;i++){
         bs.push_back(17);//area id
         bs.push_back(1);//exist
@@ -44,6 +44,26 @@ void encode_prot( vector <uint8_t> &bs)
     }
     bs.push_back(check);
     bs.push_back(DATA_END);
+
+
+    if(bs.size()>1){
+
+        for(int i=1;i<bs.size()-1;i++){
+            if(bs[i]==0x7E)
+            {
+                bs[i]=0x7D;
+                bs.insert(i,1,0x5E);
+                i++;
+            }
+            if(bs[i]==0x7D)
+            {
+                bs[i]=0x7D;
+                bs.insert(i,1,0x5D);
+                i++;
+            }
+        }
+    }
+
 
     //  cout<<hex<<c<<endl;
 }
