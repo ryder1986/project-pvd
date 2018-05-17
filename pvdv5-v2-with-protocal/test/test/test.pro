@@ -1,2 +1,4 @@
 TEMPLATE = subdirs
-SUBDIRS+=  client1
+SUBDIRS+=  \
+    ipsearch
+
