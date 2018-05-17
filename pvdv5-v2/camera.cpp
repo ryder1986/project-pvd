@@ -82,6 +82,7 @@ void Camera::run()
             sz=processors.size();
             for(i=0;i<sz;i++){
                 pro= processors[i];
+               // resize(frame,frame,Size(frame.cols / 2, frame.rows / 2),CV_INTER_LINEAR);
                 pro->process(frame);
                 JsonValue v=DataPacket((pro->get_rst())).value();
                 DataPacket pkt;

@@ -8,7 +8,7 @@
 #include <sys/time.h>
 
 #define TEST_STEP 0.8
-
+#define  RESIZE 1
 class PvdC4Processor : public VideoProcessor
 {
     int get_time()
@@ -140,6 +140,8 @@ public:
     bool process(Mat img_src)
     {
         Mat img=img_src(arg.area);
+        if(img.cols&&img.rows)
+        resize(img,img,Size(img.cols * RESIZE, img.rows * RESIZE),CV_INTER_LINEAR);
         m_result r;
         r.width=img_src.cols;
         r.height=img_src.rows;
@@ -150,6 +152,7 @@ public:
         r.duration=0;
         r.other_count=0;
         bool ret=false;
+
         if(real_process(img,r)){
             ret=true;
         }else
@@ -181,10 +184,10 @@ public:
         vector<JsonValue> ja;
         foreach (Rect rct,r.rects) {
             DataPacket pkt_rct;
-            pkt_rct.set_value("x",rct.x+arg.area.x);
-            pkt_rct.set_value("y",rct.y+arg.area.y);
-            pkt_rct.set_value("w",rct.width);
-            pkt_rct.set_value("h",rct.height);
+            pkt_rct.set_value("x",rct.x/RESIZE+arg.area.x);
+            pkt_rct.set_value("y",rct.y/RESIZE+arg.area.y);
+            pkt_rct.set_value("w",rct.width/RESIZE);
+            pkt_rct.set_value("h",rct.height/RESIZE);
             ja.push_back(pkt_rct.value());
         }
         //     cout<<r.rects.size()<<endl;
@@ -220,8 +223,11 @@ private:
             if(y>y_max)
                 y_max=y;
         }
-        return Rect(x_min,y_min,x_max-x_min,y_max-y_min);
-    }
+      //      return Rect(x_min/2,y_min/2,(x_max-x_min)/2,(y_max-y_min)/2);
+      return Rect(x_min,y_min,x_max-x_min,y_max-y_min);
+//   return         Rect(x_min/2,y_min/2,(x_max-x_min)2,(y_max-y_min)/2);
+
+       }
     const int HUMAN_height = 108;
     const int HUMAN_width = 36;
     const int HUMAN_xdiv = 9;

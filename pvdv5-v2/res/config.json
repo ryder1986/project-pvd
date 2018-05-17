@@ -6,7 +6,7 @@
                     "selected_alg":"pvd_c4",
                     "pvd_c4": {
                         "channel_id":1,
-                        "step":2,
+                        "step":9,
                         "ratio":"0.8",
                         "detect_area": [
                             {
