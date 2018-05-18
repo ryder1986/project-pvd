@@ -80,7 +80,10 @@ void Camera::run()
             channel_data.clear();
 
             sz=processors.size();
+
+            data_t da;
             for(i=0;i<sz;i++){
+                cdata_t cd;
                 pro= processors[i];
                 pro->process(frame);
                 JsonValue v=DataPacket((pro->get_rst())).value();
@@ -89,18 +92,17 @@ void Camera::run()
                 pkt.set_int("channel_id",pro->get_id());
 
                 channel_data.push_back(pkt.value());
+
+                cd.no=pro->get_id();
+                cd.exist=DataPacket((pro->get_rst())).get_int("exist");
+                da.channels.push_back(cd);
             }
           //  send_out(DataPacket(channel_data).data());
             DataPacket pkt1;
             pkt1.set_value("rt_data",DataPacket(channel_data).value());
             send_out(pkt1.data());
-
-
-
-
-
             if(1){
-                data_t da;
+
                 da.direction=this->cam_cfg.direction;
                 da.channel_count=this->cam_cfg.chs.size();
                 vector <uint8_t> rst_stream=process_protocal(da);
@@ -108,7 +110,6 @@ void Camera::run()
                 QByteArray ba;
                 for(int i=0;i<rst_stream.size();i++)
                     ba.append(rst_stream[i]);
-
                 s->send_sig(ba);
              // send_data();
             }

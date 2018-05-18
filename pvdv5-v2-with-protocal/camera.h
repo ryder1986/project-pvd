@@ -158,12 +158,12 @@ private:
 
         ProcessedDataSender *s=ProcessedDataSender::get_instance();
         if(send_flag){
-          //  prt(info,"sending state...");
+            //  prt(info,"sending state...");
         }
         foreach (QString ip, ip_list) {
             s->send(ba.data(),QHostAddress(ip));
             if(send_flag){
-            //    prt(info,"send to %s, size(%d)",ip.toStdString().data(),ba.size());
+                //    prt(info,"send to %s, size(%d)",ip.toStdString().data(),ba.size());
             }
         }
     }
@@ -172,13 +172,13 @@ private:
 
 #define DATA_START 0x7e//1
 #define ID 0x01//2
-//#define ID 0x01//2
-//#define ID 0x7d//2
+    //#define ID 0x01//2
+    //#define ID 0x7d//2
 #define VER 0x01//3
 #define OP 0x61//4
 #define CLASS 0x1f//5
-//6 data
-//7 check
+    //6 data
+    //7 check
 #define DATA_END 0x7e//8
 #define DATA_START 0x7e//
     typedef struct cdata_type{
@@ -205,15 +205,16 @@ private:
         bs.push_back(OP);
         bs.push_back(CLASS);
         //data
-        int num=2;
+        int num=data.channels.size();
         bs.push_back(0x01);//direction
         bs.push_back(num);//channel total count
         for(int i=0;i<num;i++){
-            bs.push_back(17);//area id
-            bs.push_back(1);//exist
-            bs.push_back(30);//percent
-            bs.push_back(2);//busy
-            bs.push_back(1);//valid
+            cdata_t cd=data.channels[i];
+            bs.push_back(cd.no);//area id
+            bs.push_back(cd.exist);//exist
+            bs.push_back(cd.percent);//percent
+            bs.push_back(cd.busy_state);//busy
+            bs.push_back(cd.valid);//valid
         }
         uint8_t check=0;
 
@@ -233,17 +234,15 @@ private:
             while(it!=bs.end()-1){
                 if(*it==0x7E)
                 {
-                   *it=0x7D;
+                    *it=0x7D;
                     bs.insert(it+1,1,(uint8_t)0x5E);
 
                 }else
-                if(*it==0x7D)
-                {
-                  *it=0x7D;
-
-                    bs.insert(it+1,1,(uint8_t)0x5D);
-
-                }
+                    if(*it==0x7D)
+                    {
+                        *it=0x7D;
+                        bs.insert(it+1,1,(uint8_t)0x5D);
+                    }
                 it++;
             }
         }
@@ -256,11 +255,11 @@ signals:
 public slots:
     inline void handle_time_up()
     {
-  //      frame_rate=0;
+        //      frame_rate=0;
     }
 private:
     QList <QString> ip_list;
-//    int frame_rate;
+    //    int frame_rate;
     int threadid;
     QTimer *tmr;
     VideoSource *src;
