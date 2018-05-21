@@ -12,6 +12,7 @@
 using namespace cv;
 class Camera : public QThread
 {
+       ProcessedDataSender *s;
     Q_OBJECT
     typedef struct alg{
         JsonValue pvd_c4;

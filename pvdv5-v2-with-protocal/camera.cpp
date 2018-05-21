@@ -10,6 +10,7 @@ Camera::Camera(JsonValue jv)
     connect (tmr,SIGNAL(timeout()),this,SLOT(handle_time_up()));
     tmr->start(1000);
     this->setObjectName("camera thread");
+    s=ProcessedDataSender::get_instance();
 }
 
 bool Camera::modify_alg(JsonValue jv)
@@ -136,7 +137,7 @@ void Camera::run()
                 da.channel_count=this->cam_cfg.chs.size();
 
                 vector <uint8_t> rst_stream=process_protocal(da);
-                ProcessedDataSender *s=ProcessedDataSender::get_instance();
+
                 QByteArray ba;
                 cout<<src->get_url()<<endl;
                 cout<<endl;
