@@ -221,6 +221,8 @@ private slots:
 
     void on_pushButton_del_clicked();
 
+    void on_pushButton_sigip_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool picked;

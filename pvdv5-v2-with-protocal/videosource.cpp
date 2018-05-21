@@ -2,12 +2,13 @@
 
 VideoSource::VideoSource(string path)
 {
-   // frame_rate=0;
+    // frame_rate=0;
     url=path;
     quit_flg=false;
     tmr=new QTimer();
     connect(tmr,SIGNAL(timeout()),this,SLOT(handle_time_out()));
     tmr->start(1000);
+    this->setObjectName("video source thread");
     this->start();
 }
 VideoSource::~VideoSource()
@@ -59,23 +60,27 @@ void VideoSource::run()
             flag_retry=0;
             bool rt= vcap.read(mat_rst);
             if(!rt){
+                cout<<"get frame err"<<url.data()<<endl;
                 prt(info,"get frame fail,restart video capture %s", url.data());
                 vcap.release();  vcap=   VideoCapture( url.data());
             }
             if(mat_rst.cols==0){
                 vcap.release();
+                cout<<"get frame invalid"<<url.data();
                 prt(info,"%s get frame error,retrying ... ", url.data());
                 continue;
                 prt(info,"restarting %s      ", url.data());
             }else{
-            //    frame_rate++;
+                //    frame_rate++;
                 lock.lock();
                 if(frame_list.size()<3){
                     frame_list.push_back(mat_rst);
                 }
                 lock.unlock();
+             //   cout<<"wait for new frame:"<<url.data()<<endl;
                 if(frame_wait_time)
                     this_thread::sleep_for(chrono::milliseconds( frame_wait_time));
+              //  cout<<"wait done:"<<url.data()<<endl;
             }
         }else{
             if(flag_retry++<10){
@@ -84,6 +89,8 @@ void VideoSource::run()
                 this_thread::sleep_for(chrono::seconds(1));
             }
             vcap=VideoCapture( url.data());
+            cout<<"open url err:"<<url.data()<<endl;
+
         }
     }
     prt(info,"flg %d",quit_flg);
@@ -94,5 +101,5 @@ void VideoSource::run()
 void VideoSource::handle_time_out()
 {
     //    prt(info,"%s src rate %d",url.toStdString().data(),frame_rate);
-  //  frame_rate=0;
+    //  frame_rate=0;
 }

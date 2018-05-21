@@ -37,9 +37,37 @@ public:
     virtual void init()
     {
     }
+    virtual int get_percent()
+    {
+        return percent;
+    }
+    virtual int set_percent(int tmp)
+    {
+        percent=tmp;
+    }
+    virtual int get_busy_state()
+    {
+        return busy_state;
+    }
+    virtual int set_busy_state(int tmp)
+    {
+        busy_state=tmp;
+    }
+    virtual int get_exist_state()
+    {
+        return exist_state;
+    }
+    virtual int set_exist_state(bool tmp)
+    {
+        exist_state=tmp;
+    }
 protected:
     int channel_id;
+    int percent;
+    int busy_state;
+    int exist_state;
 private:
+
 
 };
 #endif // VIDEOPROCESSOR_H

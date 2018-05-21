@@ -11,5 +11,6 @@ int main(int argc, char *argv[])
     FileDatabase db(Pvd::get_instance().config_file);
     Server svr(&db);
     svr.start();
+
     return a.exec();
 }

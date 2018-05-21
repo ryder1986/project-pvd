@@ -44,11 +44,11 @@ public:
 
             ret=true;
         }else{
-              ret=false;
+            ret=false;
         }
-           lock.unlock();
+        lock.unlock();
 
-           return ret;
+        return ret;
     }
 
     bool get_size(int &w,int &h)
@@ -69,8 +69,8 @@ public slots:
 private:
     int frame_rate;
     int monitor;
-      string url;
-      volatile bool quit_flg;
+    string url;
+    volatile bool quit_flg;
 
     QTimer *tmr;
 };

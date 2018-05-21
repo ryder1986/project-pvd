@@ -114,6 +114,16 @@
        <item row="6" column="0">
         <widget class="QLineEdit" name="lineEdit_delcam"/>
        </item>
+       <item row="7" column="1">
+        <widget class="QPushButton" name="pushButton_sigip">
+         <property name="text">
+          <string>sig ip</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <widget class="QLineEdit" name="lineEdit_sigip"/>
+       </item>
       </layout>
      </widget>
     </item>

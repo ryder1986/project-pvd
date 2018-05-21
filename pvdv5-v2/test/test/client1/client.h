@@ -117,6 +117,32 @@ public:
             prt(info,"fail send");
         }
     }
+    void modify_device(string ip)
+    {
+        DataPacket pkt;
+        pkt.set_int("type",Pvd::MOD_DEVICE_ATTR);
+        pkt.set_int("deviceID",123);
+        pkt.set_string("device_name","device_name");
+        pkt.set_string("signal_machine_ip",ip);
+        pkt.set_int("signal_machine_port",6000);
+        pkt.set_string("ntp_ip",ip);
+        pkt.set_int("ntp_port",12341);
+
+
+
+//        cfg.dev_id=data_src.get_int("deviceID");
+//        cfg.server_name=data_src.get_string("device_name");
+//        cfg.sig_ip=data_src.get_string("signal_machine_ip");
+//        cfg.sig_port=data_src.get_int("signal_machine_port");
+//        cfg.ntp_ip=data_src.get_string("ntp_ip");
+//        cfg.ntp_port=data_src.get_int("ntp_port");
+
+
+        bool ret= send(pkt.data().data());//talk to server
+        if(!ret){
+            prt(info,"fail send");
+        }
+    }
     void send_msg(QByteArray ba)
     {
         // bool ret= send(ba.data(),ba.length());//talk to server

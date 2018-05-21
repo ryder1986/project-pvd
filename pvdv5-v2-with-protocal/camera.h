@@ -270,6 +270,7 @@ private:
     mutex mtx;
     int send_check_tick;
 
+
 };
 
 #endif // CAMERA_H

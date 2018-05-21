@@ -78,3 +78,9 @@ void MainWindow::on_pushButton_del_clicked()
     clt.del_camera(ui->lineEdit_delcam->text().toInt());
 
 }
+
+void MainWindow::on_pushButton_sigip_clicked()
+{
+
+    clt.modify_device(ui->lineEdit_sigip->text().toStdString().data());
+}

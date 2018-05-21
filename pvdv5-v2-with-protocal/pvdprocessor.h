@@ -11,6 +11,10 @@
 
 class PvdC4Processor : public VideoProcessor
 {
+    //    typedef struct channel_record{
+    //        int percent;
+    //        int busy_state;
+    //    }channel_record_t;
     int get_time()
     {
         time_t tt;
@@ -129,6 +133,8 @@ public:
         DataPacket pkt(jv);
         arg.scale_ratio=atof((pkt.get_string("ratio").data()));
         arg.scan_step=pkt.get_int("step");
+        //        arg.no=pkt.get_int("channel_id");
+        //        channel_id= arg.no;
         vector <JsonValue> area=pkt.get_array("detect_area");
         arg.area=area_2_rect(area);
     }
@@ -516,7 +522,7 @@ private:
         double end_time = cv::getTickCount();
         double spend_time;
         spend_time = 1000 * (fabs(end_time - start_time) / cv::getTickFrequency());
-             std::cout << "time : " << spend_time << " ms" << std::endl;
+        std::cout << "time : " << spend_time << " ms" << std::endl;
 
         if(result_rects.size()>0)
         {
@@ -558,6 +564,30 @@ private:
 #endif
         return ret;
 
+    }
+    int get_percent()
+    {
+        return percent;
+    }
+    int set_percent(int tmp)
+    {
+        percent=tmp;
+    }
+    int get_busy_state()
+    {
+        return busy_state;
+    }
+    int set_busy_state(int tmp)
+    {
+        busy_state=tmp;
+    }
+    virtual int get_exist_state()
+    {
+        return exist_state;
+    }
+    virtual int set_exist_state(int tmp)
+    {
+        exist_state=tmp;
     }
 private:
     bool loaded;

@@ -10,6 +10,7 @@ class LocationService : public QObject{
 public:
     LocationService(){
         timer=new QTimer();
+        timer->setObjectName("timer-reply clients");
         connect(timer,SIGNAL(timeout()),this,SLOT(check_client_msg()));//TODO:maybe replace with readReady signal
         udp_skt = new QUdpSocket();
         udp_skt->bind(Pvd::SERVER_REPORTER_PORT,QUdpSocket::ShareAddress);
