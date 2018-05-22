@@ -496,9 +496,12 @@ private:
                 if(enter_count){
                     count_real=1;
                 }else{
-                    count_real=0;
-                }
+                  // count_real=0;
+                    count_real=1;
+                                   }
             }
+
+
 #endif
 
             busy_time=get_time_point_ms()-busy_start_time;

@@ -101,6 +101,7 @@ int Server::handle_client_request(string request,string &ret,void *addr)
     {
         jv_2_cfg(data_src.get_value("config"));
         save_cfg();
+        ProcessedDataSender::get_instance()->set_sig(cfg.sig_ip,cfg.sig_port);
         camera_manager->restart_cameras(cfg.cams_cfg);
         break;
     }

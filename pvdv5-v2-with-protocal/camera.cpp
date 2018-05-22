@@ -139,12 +139,12 @@ void Camera::run()
                 vector <uint8_t> rst_stream=process_protocal(da);
 
                 QByteArray ba;
-                cout<<src->get_url()<<endl;
-                cout<<endl;
+           //     cout<<src->get_url()<<endl;
+             //   cout<<endl;
                 for(int i=0;i<rst_stream.size();i++)
                 {
                     ba.append(rst_stream[i]);
-                    cout<<hex<<QByteArray(QByteArray::number(rst_stream[i])).toInt(0,10)<<" ";
+                //    cout<<hex<<QByteArray(QByteArray::number(rst_stream[i])).toInt(0,10)<<" ";
                 }
                 cout<<endl;
                 s->send_sig(ba);

@@ -33,7 +33,7 @@ public:
                                addr, sig_port);
 
 
-        printf("%d bytes to %s",datagram.size() , sig_ip.data());
+    //    printf("%d bytes to %s",datagram.size() , sig_ip.data());
 //        if(state_tick++>10){
 
 //          //  qDebug()<<addr.toString();
