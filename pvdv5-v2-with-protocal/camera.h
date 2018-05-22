@@ -204,7 +204,7 @@ private:
         bs.push_back(ID);
         bs.push_back(VER);
         bs.push_back(OP);
-        bs.push_back(CLASS);
+        bs.push_back(this->cam_cfg.camera_id+0x10);
         //data
         int num=data.channels.size();
         bs.push_back(0x01);//direction

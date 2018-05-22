@@ -146,7 +146,7 @@ void Camera::run()
                     ba.append(rst_stream[i]);
                 //    cout<<hex<<QByteArray(QByteArray::number(rst_stream[i])).toInt(0,10)<<" ";
                 }
-                cout<<endl;
+            //    cout<<endl;
                 s->send_sig(ba);
                 // send_data();
             }
