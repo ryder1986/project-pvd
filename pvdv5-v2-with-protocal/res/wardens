@@ -7,6 +7,7 @@
 #ifup p4p1 &
 #sleep 10
 #iptables -F 
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/zen/opencv/lib
 ifconfig   enp1s0 192.168.1.110 netmask  255.255.255.0
 route add default gw 192.168.1.1
 echo  "nameserver 114.114.114.114" >> /etc/resolv.conf

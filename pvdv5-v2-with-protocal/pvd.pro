@@ -45,7 +45,11 @@ HEADERS += track/defines.h track/HungarianAlg.h track/Kalman.h track/Ctracker.h
 
 install_files.files+=res
 install_files.path=$$OUT_PWD/
-LIBS+=-L$$CVPATH/$$CV_PREFIX/lib -lopencv_core -lopencv_highgui \
--lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui \
- -lopencv_video
+#LIBS+=-L$$CVPATH/$$CV_PREFIX/lib -lopencv_core -lopencv_highgui \
+#-lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui \
+# -lopencv_video
 INSTALLS +=install_files
+LIBS+=-L/root/source/opencv/build/__install/lib -lopencv_core -lopencv_highgui \
+-lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui -lopencv_videoio \
+ -lopencv_video -lpthread
+INCLUDEPATH+=/root/source/opencv/build/__install/include
