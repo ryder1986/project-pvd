@@ -3,7 +3,7 @@ Description= wardens
 After=networking.service
 
 [Service]
-ExecStart=/bin/bash /home/zen/wardens-starter
+ExecStart=/bin/bash /home/zen/res/wardens-starter
 RestartPreventExitStatus=255
 Type=forking
 

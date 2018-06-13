@@ -49,7 +49,7 @@ install_files.path=$$OUT_PWD/
 #-lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui \
 # -lopencv_video
 INSTALLS +=install_files
-LIBS+=-L/root/source/opencv/build/__install/lib -lopencv_core -lopencv_highgui \
--lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui -lopencv_videoio \
- -lopencv_video -lpthread
+LIBS+=-lopencv_core -lopencv_highgui \
+-lopencv_objdetect -lopencv_imgproc -lopencv_ml -lopencv_highgui\
+ -lopencv_video -lpthread #  -lopencv_videoio -L/root/source/opencv/build/__install/lib
 INCLUDEPATH+=/root/source/opencv/build/__install/include
