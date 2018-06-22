@@ -24,6 +24,9 @@ NETWORK_IMAGE_HEIGHT = 448
 
 TY_NETWORK_IMAGE_WIDTH = 448
 TY_NETWORK_IMAGE_HEIGHT = 448
+g_fifo_in = []
+g_fifo_out = []
+g_graph = []
 # Interpret the output from a single inference of TinyYolo (GetResult)
 # and filter out objects/boxes with low probabilities.
 # output is the array of floats returned from the API GetResult but converted
@@ -414,24 +417,35 @@ def main_test():
     print('Finished')
 
 def init():
-    print('init start')
+    global g_device
+    global g_graph
+    global g_fifo_in
+    global g_fifo_out
+    print('init start\n')
     # Set logging level to only log errors
     mvnc.global_set_option(mvnc.GlobalOption.RW_LOG_LEVEL, 3)
     devices = mvnc.enumerate_devices()
     if len(devices) == 0:
         print('No devices found')
         return 1
-    device = mvnc.Device(devices[0])
-    device.open()
+    g_device = mvnc.Device(devices[0])
+    g_device.open()
 
     #Load graph from disk and allocate graph via API
     with open(tiny_yolo_graph_file, mode='rb') as f:
         graph_from_disk = f.read()
-    graph = mvnc.Graph("Tiny Yolo Graph")
-    fifo_in, fifo_out = graph.allocate_with_fifos(device, graph_from_disk)
+    g_graph = mvnc.Graph("Tiny Yolo Graph")
+    g_fifo_in, g_fifo_out = g_graph.allocate_with_fifos(g_device, graph_from_disk)
     print('init end')
+
 def run():
+    global g_device
+    global g_graph
+    global g_fifo_in
+    global g_fifo_out      
     print('run start')
+
+
     video_device = cv2.VideoCapture("./" + input_image_file)
     actual_frame_width = video_device.get(cv2.CAP_PROP_FRAME_WIDTH)
     actual_frame_height = video_device.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -439,6 +453,8 @@ def run():
 
 
 
+
+   # while(1):
     ret_val, input_image = video_device.read()
     input_image = cv2.resize(input_image, (NETWORK_IMAGE_WIDTH, NETWORK_IMAGE_HEIGHT), cv2.INTER_LINEAR)
     input_image = input_image.astype(np.float32)
@@ -447,8 +463,9 @@ def run():
 
     time3  = time.time()
     # Load tensor and get result.  This executes the inference on the NCS
-    graph.queue_inference_with_fifo_elem(fifo_in, fifo_out, input_image.astype(np.float32), None)
-    output, userobj = fifo_out.read_elem()
+
+    g_graph.queue_inference_with_fifo_elem(g_fifo_in, g_fifo_out, input_image.astype(np.float32), None)
+    output, userobj = g_fifo_out.read_elem()
 
     # filter out all the objects/boxes that don't meet thresholds
     filtered_objs = filter_objects(output.astype(np.float32), input_image.shape[1], input_image.shape[0])
@@ -456,14 +473,117 @@ def run():
     print('Displaying image with objects detected in GUI')
     print('Click in the GUI window and hit any key to exit')
     #display the filtered objects/boxes in a GUI window
-    display_objects_in_gui(display_image, filtered_objs)
+    display_objects_in_gui(input_image, filtered_objs)
+
+
     print('run end')
+def run_pic(picture):
+    global g_device
+    global g_graph
+    global g_fifo_in
+    global g_fifo_out
+    print('run start')
+
+
+    video_device = cv2.VideoCapture("./" + input_image_file)
+    actual_frame_width = video_device.get(cv2.CAP_PROP_FRAME_WIDTH)
+    actual_frame_height = video_device.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print ('actual video resolution: ' + str(actual_frame_width) + ' x ' + str(actual_frame_height))
+
+
+
+
+   # while(1):
+    ret_val, input_image = video_device.read()
+    ret_val, input_image = video_device.read()
+
+#    a1=input_image.data();
+#    input_image=mat(a1);
+
+    input_image = cv2.resize(input_image, (NETWORK_IMAGE_WIDTH, NETWORK_IMAGE_HEIGHT), cv2.INTER_LINEAR)
+    input_image = input_image.astype(np.float32)
+    input_image = np.divide(input_image, 255.0)
+    input_image = input_image[:, :, ::-1]  # convert to RGB
+
+    time3  = time.time()
+    # Load tensor and get result.  This executes the inference on the NCS
+
+    g_graph.queue_inference_with_fifo_elem(g_fifo_in, g_fifo_out, input_image.astype(np.float32), None)
+    output, userobj = g_fifo_out.read_elem()
+
+    # filter out all the objects/boxes that don't meet thresholds
+    filtered_objs = filter_objects(output.astype(np.float32), input_image.shape[1], input_image.shape[0])
+
+    print('Displaying image with objects detected in GUI')
+    print('Click in the GUI window and hit any key to exit')
+    #display the filtered objects/boxes in a GUI window
+    display_objects_in_gui(input_image, filtered_objs)
+
+def run_pic1(picture):
+    global g_device
+    global g_graph
+    global g_fifo_in
+    global g_fifo_out
+    print('run start\n')
+
+    return
+    video_device = cv2.VideoCapture("./" + input_image_file)
+    actual_frame_width = video_device.get(cv2.CAP_PROP_FRAME_WIDTH)
+    actual_frame_height = video_device.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print ('actual video resolution: ' + str(actual_frame_width) + ' x ' + str(actual_frame_height))
+
+
+
+
+   # while(1):
+#    ret_val, input_image = video_device.read()
+    ret_val, input_image = picture
+ #   a1=input_image.data();
+#    input_image=mat(a1);
+    input_image = cv2.resize(input_image, (NETWORK_IMAGE_WIDTH, NETWORK_IMAGE_HEIGHT), cv2.INTER_LINEAR)
+    input_image = input_image.astype(np.float32)
+    input_image = np.divide(input_image, 255.0)
+    input_image = input_image[:, :, ::-1]  # convert to RGB
+
+    time3  = time.time()
+    # Load tensor and get result.  This executes the inference on the NCS
+
+    g_graph.queue_inference_with_fifo_elem(g_fifo_in, g_fifo_out, input_image.astype(np.float32), None)
+    output, userobj = g_fifo_out.read_elem()
+
+    # filter out all the objects/boxes that don't meet thresholds
+    filtered_objs = filter_objects(output.astype(np.float32), input_image.shape[1], input_image.shape[0])
+
+    print('Displaying image with objects detected in GUI')
+    print('Click in the GUI window and hit any key to exit')
+    #display the filtered objects/boxes in a GUI window
+    display_objects_in_gui(input_image, filtered_objs)
+
+
+    print('run end')
+
 def release():
+    global g_device
+    global g_graph
+    global g_fifo_in
+    global g_fifo_out
     print('release start')
-
+    g_fifo_in.destroy()
+    g_fifo_out.destroy()
+    g_graph.destroy()
+    g_device.close()
+    g_device.destroy()
     print('release end')
-
-
+def test_arg1(arg):
+    print('func arg\n')
+def test_arg(arg):
+    print('func arg\n')
+    #video_device = cv2.VideoCapture("rtsp://192.168.1.80:554/av0_1")
+    #ret_val, input_image = video_device.read()
+    cv2.imshow("123", arg)   
+ 
+    raw_key = cv2.waitKey(20000)
+    print('func arg done\ n')
 def func():
     print('func start')
     init()
@@ -520,43 +640,39 @@ def main():
 
         while True :
             print ('Use the provided script: install-opencv-from_source.sh')
-
-# Read image from video device,
-	    time1  = time.time()
+            time1  = time.time()
             ret_val, input_image = video_device.read()
 
-	    time2  = time.time()
+        time2  = time.time()
 
-	    start_time = time.time()
-
-
-	    display_image = input_image
+        start_time = time.time()
 
 
-
-	    input_image = cv2.resize(input_image, (NETWORK_IMAGE_WIDTH, NETWORK_IMAGE_HEIGHT), cv2.INTER_LINEAR)
-	    input_image = input_image.astype(np.float32)
-	    input_image = np.divide(input_image, 255.0)
-	    input_image = input_image[:, :, ::-1]  # convert to RGB
-
-	    time3  = time.time()
-	    # Load tensor and get result.  This executes the inference on the NCS
-	    graph.queue_inference_with_fifo_elem(fifo_in, fifo_out, input_image.astype(np.float32), None)
-	    output, userobj = fifo_out.read_elem()
-
-	    # filter out all the objects/boxes that don't meet thresholds
-	    filtered_objs = filter_objects(output.astype(np.float32), input_image.shape[1], input_image.shape[0])
-
-	    print('Displaying image with objects detected in GUI')
-	    print('Click in the GUI window and hit any key to exit')
-	    #display the filtered objects/boxes in a GUI window
-	    display_objects_in_gui(display_image, filtered_objs)
+        display_image = input_image
 
 
 
-	    time4  = time.time()
+        input_image = cv2.resize(input_image, (NETWORK_IMAGE_WIDTH, NETWORK_IMAGE_HEIGHT), cv2.INTER_LINEAR)
+        input_image = input_image.astype(np.float32)
+        input_image = np.divide(input_image, 255.0)
+        input_image = input_image[:, :, ::-1]  # convert to RGB
+
+        time3  = time.time()
+        # Load tensor and get result.  This executes the inference on the NCS
+        graph.queue_inference_with_fifo_elem(fifo_in, fifo_out, input_image.astype(np.float32), None)
+        output, userobj = fifo_out.read_elem()
+
+        # filter out all the objects/boxes that don't meet thresholds
+        filtered_objs = filter_objects(output.astype(np.float32), input_image.shape[1], input_image.shape[0])
+
+        print('Displaying image with objects detected in GUI')
+        print('Click in the GUI window and hit any key to exit')
+        #display the filtered objects/boxes in a GUI window
+        display_objects_in_gui(display_image, filtered_objs)
 
 
+
+        time4  = time.time()
 
 
 
@@ -565,13 +681,15 @@ def main():
 
 
 
-	    end_time = time.time()
-            time_used=end_time-start_time
-	    print("time used : "+ str(time_used)+"time point:"+str(time1)+" "+str(time2)+" "+str(time3)+" "+str(time4))
-	    cv2.imshow(cv_window_name, input_image)
-	    #raw_key = cv2.waitKey(1)
 
-            if (not ret_val):
+
+        end_time = time.time()
+        time_used=end_time-start_time
+        print("time used : "+ str(time_used)+"time point:"+str(time1)+" "+str(time2)+" "+str(time3)+" "+str(time4))
+        cv2.imshow(cv_window_name, input_image)
+        #raw_key = cv2.waitKey(1)
+
+        if (not ret_val):
              #   end_time = time.time()
                 print("No image from from video device, exiting")
                 break
